@@ -1,0 +1,22 @@
+name: clang-format
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  clang-format:
+    name: clang-format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+
+      - name: Run clang-format check script
+        run: |
+          echo "=== clang-format check start ==="
+          ./run-clang-format.py --style file -r modules
+          echo "=== clang-format check finished ==="
