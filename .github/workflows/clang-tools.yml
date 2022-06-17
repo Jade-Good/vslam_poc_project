@@ -10,7 +10,7 @@ on:
 jobs:
   clang-format:
     name: clang-format
-    runs-on: self-hosted
+    runs-on: Linux
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
