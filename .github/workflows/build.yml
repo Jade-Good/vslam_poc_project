@@ -3,10 +3,14 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - main
-      - development
+      - master
+      - develop
+	  - feature/CI
   pull_request:
-    branches: [ development ]
+    branches:
+	  - master
+      - develop
+	  - feature/CI
 env:
   GET_REPO: export REPO=${GITHUB_REPOSITORY#*/}
   GET_HASH: export HASH=${GITHUB_SHA}
