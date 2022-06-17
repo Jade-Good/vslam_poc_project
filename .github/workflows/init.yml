@@ -23,7 +23,7 @@ jobs:
       - name: pre-build 3rdParty libs 
         run: |
           echo "=== Build start ==="
-          echo {컴퓨터비밀번호} | sudo -S echo ""         
+          echo rkdtnals423! | sudo -S echo ""         
           cd dockerfiles
           echo "=== Log Docker image status ==="
           sudo docker images 
@@ -31,7 +31,7 @@ jobs:
           sudo docker build --force-rm --no-cache -t slam:base_temp . -f base.dockerfile
           echo "=== Temporary Docker image build finished ==="
           echo "=== Log Docker image status ==="
-          echo {컴퓨터비밀번호} | sudo -S echo ""
+          echo rkdtnals423! | sudo -S echo ""
           sudo docker images
           echo "=== Replace old Docker image with temporary image start ==="
           sudo docker rmi slam:base
@@ -43,7 +43,7 @@ jobs:
       - name: Clean up Docker image if build fails
         run: |
           echo "=== Clean up start ==="  
-          echo {컴퓨터비밀번호} | sudo -S echo "" 
+          echo rkdtnals423! | sudo -S echo "" 
           echo "=== Log Docker image status ==="
           sudo docker images 
           sudo docker rmi -f $(sudo docker images -f "dangling=true" -q)
