@@ -21,6 +21,7 @@ apt-get install -y gcc && \
 apt-get install -y g++ && \
 apt-get install -y gdb && \
 apt-get install -y clang && \
+apt-get install -y clang-format && \
 apt-get install -y cmake && \
 apt-get install -y rsync && \
 apt-get install -y tar && \
