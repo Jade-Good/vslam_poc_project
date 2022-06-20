@@ -5,11 +5,13 @@ on:
     branches:
       - master
       - develop
+      - release
       - feature/CI
   pull_request:
     branches:
       - master
       - develop
+      - release
       - feature/CI
 env:
   GET_REPO: export REPO=${GITHUB_REPOSITORY#*/}
