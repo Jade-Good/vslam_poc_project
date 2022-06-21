@@ -1,4 +1,4 @@
-FROM slam:base
+FROM celinachild/orbslam2:latest
 
 ARG BRANCH=development
 ARG DEBIAN_FRONTEND=noninteractive
