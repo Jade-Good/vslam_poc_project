@@ -1,6 +1,6 @@
-FROM ubuntu:focal
+FROM ubuntu:bionic
 
-MAINTAINER BreathIN423
+# MAINTAINER BreathIN423
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update -y && apt-get upgrade -y
