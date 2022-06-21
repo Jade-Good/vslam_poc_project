@@ -3,7 +3,10 @@ FROM celinachild/orbslam2:latest
 ARG BRANCH=development
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN sudo apt-get update -y && sudo apt-get upgrade -y
+RUN sudo apt-get clean -y
+RUN sudo apt-get update -y 
+RUN sudo apt-get upgrade -y
+
 
 RUN useradd -m user && yes password | passwd user
 
