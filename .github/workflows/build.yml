@@ -32,6 +32,7 @@ jobs:
           echo "=== Build start ==="
           echo rkdtnals423! | sudo -S echo ""         
           cd dockerfiles
+          sudo docker build --force-rm --no-cache -t slam:base_temp . -f base.dockerfile
           sudo docker build --force-rm --no-cache -t "${REPO}:${HASH}" --build-arg BRANCH=${{ github.head_ref }} . -f modules.dockerfile
           echo "=== Build finished ==="
 

@@ -1,10 +1,12 @@
-FROM ubuntu:bionic
+FROM celinachild/orbslam2:latest
 
 # MAINTAINER BreathIN423
 ARG DEBIAN_FRONTEND=noninteractive
 
 
-RUN sudo apt-get update -y && sudo apt-get upgrade -y
+RUN sudo apt-get clean -y
+RUN sudo apt-get update -y 
+RUN sudo apt-get upgrade -y
 
 RUN apt-get install build-essential -y && \
 # Related to build...
