@@ -3,7 +3,8 @@ FROM ubuntu:bionic
 # MAINTAINER BreathIN423
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN sudo apt-get update -y --fix-missing && sudo apt-get upgrade -y --fix-missing
+
+RUN sudo apt-get clean && sudo apt-get update -y && sudo apt-get upgrade -y
 
 RUN apt-get install build-essential -y && \
 # Related to build...
