@@ -8,7 +8,7 @@ RUN apt-get update -y && apt-get upgrade -y
 RUN useradd -m user && yes password | passwd user
 
 RUN echo "== Start Debug build == " && \
-cd slam-build-prac && \
+cd slam/slam-build-prac && \
 git remote update && \
 git fetch --all && \
 git checkout ${BRANCH} && \
@@ -18,7 +18,7 @@ mkdir build_debug && cd build_debug && \
 cmake -DCMAKE_BUILD_TYPE=Debug -GNinja .. && ninja
 
 RUN echo "== Start Release build == " && \
-cd slam-build-prac && \
+cd slam/slam-build-prac && \
 git remote update && \
 git fetch --all && \
 git checkout ${BRANCH} && \
