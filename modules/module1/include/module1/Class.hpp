@@ -9,4 +9,4 @@
 #include "easy/profiler.h"
 #include "spdlog/spdlog.h"
 
-#endif  // SVSLAM_CLASS_HPP
+#endif // SVSLAM_CLASS_HPP
