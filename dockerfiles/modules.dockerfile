@@ -1,4 +1,4 @@
-FROM slam:base
+FROM 717lumos/slam:base
 
 ARG BRANCH=development
 ARG DEBIAN_FRONTEND=noninteractive
