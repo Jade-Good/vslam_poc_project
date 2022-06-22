@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - development
+      - develop
       - feature/CI
   pull_request:
     branches: [ develop ]
