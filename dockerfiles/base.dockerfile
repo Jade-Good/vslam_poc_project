@@ -1,12 +1,9 @@
-FROM celinachild/orbslam2:latest
+FROM ubuntu:focal
 
-# MAINTAINER BreathIN423
+MAINTAINER changh95
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN sudo apt-key del F42ED6FBAB17C654 && sudo -E apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
-
-RUN sudo apt-get update -y 
-RUN sudo apt-get upgrade -y
+RUN apt-get update -y && apt-get upgrade -y
 
 RUN apt-get install build-essential -y && \
 # Related to build...
@@ -42,6 +39,6 @@ RUN pip3 install gitpython
 RUN apt-get autoclean
 
 RUN mkdir slam && cd slam && \
-    git clone https://github.com/changh95/programmers_slam_project_template.git &&\
-    cd programmers_slam_project_template && ./buildDeps.py --d --system
+    git clone https://github.com/EunGiHan/slam-build-prac.git &&\
+    cd slam-build-prac && ./buildDeps.py --d --system
 

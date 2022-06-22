@@ -1,30 +1,24 @@
-FROM celinachild/orbslam2:latest
+FROM slam:base
 
 ARG BRANCH=development
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN sudo apt-key del F42ED6FBAB17C654 && sudo -E apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
-
-
-
-RUN sudo apt-get update -y
-RUN sudo apt-get upgrade -y
-
+RUN apt-get update -y && apt-get upgrade -y
 
 RUN useradd -m user && yes password | passwd user
 
-# RUN echo "== Start Debug build == " &&\
-# cd /slam/programmers_slam_project_template && \
-# git remote update && \
-# git fetch --all && \
-# git checkout ${BRANCH} && \
-# git pull && \
-# git branch && \
-# mkdir build_debug && cd build_debug && \
-# cmake -DCMAKE_BUILD_TYPE=Debug -GNinja .. && ninja
+RUN echo "== Start Debug build == " && \
+cd slam-build-prac && \
+git remote update && \
+git fetch --all && \
+git checkout ${BRANCH} && \
+git pull && \
+git branch && \
+mkdir build_debug && cd build_debug && \
+cmake -DCMAKE_BUILD_TYPE=Debug -GNinja .. && ninja
 
 RUN echo "== Start Release build == " && \
-cd /slam/programmers_slam_project_template && \
+cd slam-build-prac && \
 git remote update && \
 git fetch --all && \
 git checkout ${BRANCH} && \

@@ -51,4 +51,4 @@ jobs:
           echo "=== Log Docker image status ==="
           sudo docker images
           echo "=== Clean up finished ==="
-        if: failure() 
+        if: failure()

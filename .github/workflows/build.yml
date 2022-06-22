@@ -3,16 +3,11 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - master
-      - develop
-      - release
+      - main
+      - development
       - feature/CI
   pull_request:
-    branches:
-      - master
-      - develop
-      - release
-      - feature/CI
+    branches: [ develop ]
 env:
   GET_REPO: export REPO=${GITHUB_REPOSITORY#*/}
   GET_HASH: export HASH=${GITHUB_SHA}
@@ -32,7 +27,6 @@ jobs:
           echo "=== Build start ==="
           echo rkdtnals423! | sudo -S echo ""         
           cd dockerfiles
-          sudo docker build --force-rm --no-cache -t slam:base_temp . -f base.dockerfile
           sudo docker build --force-rm --no-cache -t "${REPO}:${HASH}" --build-arg BRANCH=${{ github.head_ref }} . -f modules.dockerfile
           echo "=== Build finished ==="
 

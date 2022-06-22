@@ -82,4 +82,3 @@ target_include_directories(example1 PRIVATE
 target_link_libraries(example1 PRIVATE
         module1
         )
-

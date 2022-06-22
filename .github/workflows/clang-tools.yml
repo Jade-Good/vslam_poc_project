@@ -2,22 +2,17 @@ name: clang-format
 on:
   push:
     branches:
-      - master
+      - main
       - develop
-      - release
       - feature/CI
   pull_request:
-    branches:
-      - master
-      - develop
-      - release
-      - feature/CI
+    branches: [ develop ]
   workflow_dispatch:
 
 jobs:
   clang-format:
     name: clang-format
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
