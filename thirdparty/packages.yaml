@@ -1,0 +1,63 @@
+apt_packages:
+  yaml-cpp: true
+  doxygen: true
+  PNG: true
+  TIFF: true
+  JPEG: true
+  ZLIB: true
+  GLUT: true
+  GLEW: true
+  GLFW: true
+  GLM: true
+  JSON: true
+build_packages:
+  Pangolin:
+    version_num: 0.6
+    cmake_flags:
+      debug : ""
+      release : ""
+  Eigen3: 
+    version_num: 3.3.9
+    cmake_flags:
+      debug : ""
+      release :
+        - "-DCMAKE_CXX_FLAGS=\"-Ofast\""
+  OpenCV: 
+    version_num: 4.5.3
+    cmake_flags:
+      debug: ""
+      release:
+        - "-DCMAKE_CXX_FLAGS=\"-Ofast\""
+  Ceres: 
+    version_num: 1.14.0
+    cmake_flags: 
+      debug: ""
+      release:
+        - "-DCMAKE_CXX_FLAGS=\"-Ofast\" -DBUILD_TESTING=OFF"
+  GTest: 
+    version_num: 1.11.0
+    cmake_flags:
+      debug: ""
+      release: ""
+  easy-profiler: 
+    version_num: 2.1.0
+    cmake_flags:
+      debug: ""
+      release: ""
+  spdlog: 
+    version_num: 1.9.2
+    cmake_flags:
+      debug: ""
+      release: ""
+  imgui:
+    version_num: 1.85
+    cmake_flags:
+      debug: ""
+      release: ""
+  cereal:
+    version_num: 1.3.1
+    cmake_flags:
+      debug:
+        - "-DSKIP_PERFORMANCE_COMPARISON=ON -DSKIP_PORTABILITY_TEST=1 -DTHREAD_SAFE=ON"
+      release:
+        - "-DSKIP_PERFORMANCE_COMPARISON=ON -DSKIP_PORTABILITY_TEST=1 -DTHREAD_SAFE=ON"

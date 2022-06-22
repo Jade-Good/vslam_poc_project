@@ -1,3 +1,0 @@
-/home/ORB_SLAM2/vslam_poc_project/Thirdparty/g2o/CMakeFiles/rebuild_cache.dir
-/home/ORB_SLAM2/vslam_poc_project/Thirdparty/g2o/CMakeFiles/g2o.dir
-/home/ORB_SLAM2/vslam_poc_project/Thirdparty/g2o/CMakeFiles/edit_cache.dir
