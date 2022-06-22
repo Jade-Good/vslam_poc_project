@@ -171,4 +171,9 @@ g2o/stuff/os_specific.h
 g2o/stuff/string_tools.cpp
 g2o/stuff/property.cpp       
 g2o/stuff/property.h       
+#new
+g2o/core/optimization_algorithm_gauss_newton.cpp
+g2o/core/optimization_algorithm_gauss_newton.h
+g2o/core/optimization_algorithm_dogleg.cpp
+g2o/core/optimization_algorithm_dogleg.h
 )
