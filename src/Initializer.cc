@@ -27,111 +27,287 @@
 
 #include<thread>
 
-namespace ORB_SLAM2
-{
+#include <algorithm>
+#include <cmath>
+#include <time.h>
 
-Initializer::Initializer(const Frame &ReferenceFrame, float sigma, int iterations)
-{
-    mK = ReferenceFrame.mK.clone();
+#define EASY_PROFILER_ENABLE
 
-    mvKeys1 = ReferenceFrame.mvKeysUn;
+namespace ORB_SLAM2 {
 
-    mSigma = sigma;
-    mSigma2 = sigma*sigma;
-    mMaxIterations = iterations;
+    Initializer::Initializer(const Frame &ReferenceFrame, float sigma, int iterations) {
+        mK = ReferenceFrame.mK.clone();
+
+        mvKeys1 = ReferenceFrame.mvKeysUn;
+
+        mSigma = sigma;
+        mSigma2 = sigma * sigma;
+        mMaxIterations = iterations;
+    }
+
+    bool Initializer::Initialize(const Frame &CurrentFrame, const vector<int> &vMatches12, cv::Mat &R21, cv::Mat &t21,
+                                 vector<cv::Point3f> &vP3D, vector<bool> &vbTriangulated) {
+        // Fill structures with current keypoints and matches with reference frame
+        // Reference Frame: 1, Current Frame: 2
+        mvKeys2 = CurrentFrame.mvKeysUn;
+
+        mvMatches12.clear();
+        mvMatches12.reserve(mvKeys2.size());
+        mvbMatched1.resize(mvKeys1.size());
+        for (size_t i = 0, iend = vMatches12.size(); i < iend; i++) {
+            if (vMatches12[i] >= 0) {
+                mvMatches12.push_back(make_pair(i, vMatches12[i]));
+                mvbMatched1[i] = true;
+            } else
+                mvbMatched1[i] = false;
+        }
+
+        const int N = mvMatches12.size(); // 156
+
+        // Indices for minimum set selection
+        vector<size_t> vAllIndices;
+        vAllIndices.reserve(N);
+        vector<size_t> vAvailableIndices;
+
+        for (int i = 0; i < N; i++) {
+            vAllIndices.push_back(i);   // vAllIndices : 0부터 현재 keypoint개수만큼의 index를 저장
+        }
+
+        // Generate sets of 8 points for each RANSAC iteration
+        mvSets = vector<vector<size_t> >(mMaxIterations, vector<size_t>(8, 0));
+        // mvSets : 200개 row, 1개의 col에 0으로 된 8개의 vector로 구성
+
+        DUtils::Random::SeedRandOnce(0);
+
+        for (int it = 0; it < mMaxIterations; it++) {
+            vAvailableIndices = vAllIndices;
+
+            // Select a minimum set
+            for (size_t j = 0; j < 8; j++) {
+                // ransac
+                int randi = DUtils::Random::RandomInt(0, vAvailableIndices.size() - 1);
+
+                // lo-ransac
+
+                int idx = vAvailableIndices[randi];
+
+                mvSets[it][j] = idx; // random의 index를 순서대로 mvSets에 저장
+
+                vAvailableIndices[randi] = vAvailableIndices.back();
+                vAvailableIndices.pop_back();
+            }
+        }
+
+        // Launch threads to compute in parallel a fundamental matrix and a homography
+        vector<bool> vbMatchesInliersH, vbMatchesInliersF;
+        float SH, SF;
+        cv::Mat H, F;
+
+        thread threadH(&Initializer::FindHomography, this, ref(vbMatchesInliersH), ref(SH), ref(H));
+        thread threadF(&Initializer::FindFundamental, this, ref(vbMatchesInliersF), ref(SF), ref(F));
+
+        // Wait until both threads have finished
+        threadH.join();
+        threadF.join();
+
+        // Compute ratio of scores
+        float RH = SH / (SH + SF);
+
+        // Try to reconstruct from homography or fundamental depending on the ratio (0.40-0.45)
+        if (RH > 0.40)
+            return ReconstructH(vbMatchesInliersH, H, mK, R21, t21, vP3D, vbTriangulated, 1.0, 50);
+        else //if(pF_HF>0.6)
+            return ReconstructF(vbMatchesInliersF, F, mK, R21, t21, vP3D, vbTriangulated, 1.0, 50);
+
+        return false;
+    }
+
+cv::Mat Initializer::computeHomo(vector<cv::Point2f> vP1, vector<cv::Point2f> vP2) {
+    int N = 50; // vP1.size(); // 4000개
+    cv::Mat A(2 * N, 9, CV_32F);
+
+    for (int i = 0; i < N; i++) {
+        const float u1 = vP1[i].x;
+        const float v1 = vP1[i].y;
+        const float u2 = vP2[i].x;
+        const float v2 = vP2[i].y;
+
+        A.at<float>(2 * i, 0) = 0.0;
+        A.at<float>(2 * i, 1) = 0.0;
+        A.at<float>(2 * i, 2) = 0.0;
+        A.at<float>(2 * i, 3) = -u1;
+        A.at<float>(2 * i, 4) = -v1;
+        A.at<float>(2 * i, 5) = -1;
+        A.at<float>(2 * i, 6) = v2 * u1;
+        A.at<float>(2 * i, 7) = v2 * v1;
+        A.at<float>(2 * i, 8) = v2;
+
+        A.at<float>(2 * i + 1, 0) = u1;
+        A.at<float>(2 * i + 1, 1) = v1;
+        A.at<float>(2 * i + 1, 2) = 1;
+        A.at<float>(2 * i + 1, 3) = 0.0;
+        A.at<float>(2 * i + 1, 4) = 0.0;
+        A.at<float>(2 * i + 1, 5) = 0.0;
+        A.at<float>(2 * i + 1, 6) = -u2 * u1;
+        A.at<float>(2 * i + 1, 7) = -u2 * v1;
+        A.at<float>(2 * i + 1, 8) = -u2;
+    }
+
+    cv::Mat U, W, VT;
+
+    cv::SVDecomp(A, W, U, VT, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
+
+    cv::Mat homography = VT.row(8).reshape(0, 3);
+
+    // normalize는 이미 point에 되어 있음.
+//    // Normalization to ensure that ||c1|| = 1
+//    double norm = sqrt(homography.at<double>(0, 0) * homography.at<double>(0, 0) +
+//                       homography.at<double>(1, 0) * homography.at<double>(1, 0) +
+//                       homography.at<double>(2, 0) * homography.at<double>(2, 0));
+//
+////    homography /= norm;
+
+//    std::cout << "Homography matrix is \n" << homography << std::endl;
+    return homography;
 }
 
-bool Initializer::Initialize(const Frame &CurrentFrame, const vector<int> &vMatches12, cv::Mat &R21, cv::Mat &t21,
-                             vector<cv::Point3f> &vP3D, vector<bool> &vbTriangulated)
+
+bool Initializer::compare_score(std::pair<int, float> a, std::pair<int, float> b)
 {
-    // Fill structures with current keypoints and matches with reference frame
-    // Reference Frame: 1, Current Frame: 2
-    mvKeys2 = CurrentFrame.mvKeysUn;
+    return a.second < b.second;
+}
 
-    mvMatches12.clear();
-    mvMatches12.reserve(mvKeys2.size());
-    mvbMatched1.resize(mvKeys1.size());
-    for(size_t i=0, iend=vMatches12.size();i<iend; i++)
+void Initializer::reprojection_H(cv::Mat H, vector<cv::Point2f> vPn1, vector<cv::Point2f> vPn2,
+                                 vector<vector<size_t> > &mvSets, vector<Match> mvMatches12,
+                                 vector<cv::KeyPoint> mvKeys1, vector<cv::KeyPoint> mvKeys2)
+{
+    /* Return the geometric distance between a pair of points given the homography, H */
+    const int N = 200*8;//mvMatches12.size();
+//    std::cout << "reproject_H : " << mvMatches12.size() << std::endl;
+//    std::cout << "mvSets size : " << mvSets.size() << " " << mvSets[0].size() << std::endl;
+
+    std::cout << mvKeys1.size() << " " << vPn1.size() << std::endl;
+
+    std::vector<pair<int, double>> dists(N);
+    int r=0; int c=0;
+    for (auto v=0;v<N;++v)
     {
-        if(vMatches12[i]>=0)
+        if(c==8)
         {
-            mvMatches12.push_back(make_pair(i,vMatches12[i]));
-            mvbMatched1[i]=true;
+            r++;c=0;
         }
-        else
-            mvbMatched1[i]=false;
-    }
+        const int idx = mvSets[r][c];
 
-    const int N = mvMatches12.size();
+//        std::cout << "idx : " << idx;
+        // convert homogeneous coordinates, Match정보에 저장되어 있는 pair를 불러와서 연산
+        std::vector<float> pnt1 = {vPn1[mvMatches12[idx].first].x, vPn1[mvMatches12[idx].first].y , 1};
+        std::vector<float> pnt2 = {vPn2[mvMatches12[idx].second].x, vPn2[mvMatches12[idx].second].y , 1};
 
-    // Indices for minimum set selection
-    vector<size_t> vAllIndices;
-    vAllIndices.reserve(N);
-    vector<size_t> vAvailableIndices;
-
-    for(int i=0; i<N; i++)
-    {
-        vAllIndices.push_back(i);
-    }
-
-    // Generate sets of 8 points for each RANSAC iteration
-    mvSets = vector< vector<size_t> >(mMaxIterations,vector<size_t>(8,0));
-
-    DUtils::Random::SeedRandOnce(0);
-
-    for(int it=0; it<mMaxIterations; it++)
-    {
-        vAvailableIndices = vAllIndices;
-
-        // Select a minimum set
-        for(size_t j=0; j<8; j++)
+        // 다차원 내적을 통해 pnt2 추정
+        std::vector<float> pnt2_estimate(3);
+        for (auto i=0; i>H.rows;++i)
         {
-            int randi = DUtils::Random::RandomInt(0,vAvailableIndices.size()-1);
-            int idx = vAvailableIndices[randi];
-
-            mvSets[it][j] = idx;
-
-            vAvailableIndices[randi] = vAvailableIndices.back();
-            vAvailableIndices.pop_back();
+            pnt2_estimate[i] = H.at<float>(i,0) * pnt2[0] +
+                               H.at<float>(i,1) * pnt2[1] +
+                               H.at<float>(i,2) * pnt2[2];
         }
+
+        // compare gt pnt2 with estimated pnt2 by 2-norm
+        float L2_norm = 0;
+        float diff = 0;
+        for (auto i=0; i<pnt2.size();++i)
+        {
+            diff = pnt2[i] - pnt2_estimate[i];
+            L2_norm += pow(diff, 2);
+        }
+//        std::cout << "GT pnt2 is " << pnt2[0] << ", " << pnt2[1] << ", " << pnt2[2];
+//        std::cout << "\t estimate pnt2 is " << pnt2_estimate[0] << ", " << pnt2_estimate[1] << ", " << pnt2_estimate[2] << std::endl;
+//        std::cout << "estimation value is " << sqrt(L2_norm) << std::endl;
+        // 재투영에러가 가장 작은 matches(img1 featurepoint, img2 featurepoint)의 index를 정렬시킬 예정
+        // distance deque안에 값들과 비교하여 값을 집어넣는다.
+        // while문으로 0index부터 탐색해서 현재 값보다 큰 값 바로 앞에 저장
+        double distance = sqrt(L2_norm);
+
+
+        dists[v] = make_pair(idx,distance);
+
+        c++;
     }
 
-    // Launch threads to compute in parallel a fundamental matrix and a homography
-    vector<bool> vbMatchesInliersH, vbMatchesInliersF;
-    float SH, SF;
-    cv::Mat H, F;
+    sort(dists.begin(), dists.end(), compare_score);
 
-    thread threadH(&Initializer::FindHomography,this,ref(vbMatchesInliersH), ref(SH), ref(H));
-    thread threadF(&Initializer::FindFundamental,this,ref(vbMatchesInliersF), ref(SF), ref(F));
+//    int n=0;
+//    std::cout << "dists is : " << std::endl;
+//    for (auto d : dists)
+//    {
+//        std::cout << "(" << d.first << ", " << d.second << ")  ";
+//        n++;
+//        if(n==10) break;
+//    }
 
-    // Wait until both threads have finished
-    threadH.join();
-    threadF.join();
-
-    // Compute ratio of scores
-    float RH = SH/(SH+SF);
-
-    // Try to reconstruct from homography or fundamental depending on the ratio (0.40-0.45)
-    if(RH>0.40)
-        return ReconstructH(vbMatchesInliersH,H,mK,R21,t21,vP3D,vbTriangulated,1.0,50);
-    else //if(pF_HF>0.6)
-        return ReconstructF(vbMatchesInliersF,F,mK,R21,t21,vP3D,vbTriangulated,1.0,50);
-
-    return false;
+//    int max= 0;
+//    std::cout << "\n\nbefore sorted is : " << std::endl;
+//    for (auto row=0; row<mvSets.size(); ++row)
+//    {
+//        for (auto col=0; col<mvSets[0].size(); ++col)
+//        {
+//            std::cout << mvSets[row][col] << "\t";
+//            if (max < mvSets[row][col]) max = mvSets[row][col];
+//        }
+//        std::cout << std::endl;
+//        if(row==50) break;
+//    }
+//    std::cout << "max : " << max + 1<< std::endl;
+//
+    int d = 0;
+    for (auto row=0; row<mvSets.size(); ++row)
+    {
+        for (auto col=0; col<mvSets[0].size(); ++col)
+        {
+            mvSets[row][col] = dists[d].first;
+            d++;
+        }
+    }
+//
+//    std::cout << "\n\nafter sorted is : " << std::endl;
+//    for (auto row=0; row<mvSets.size(); ++row)
+//    {
+//        for (auto col=0; col<mvSets[0].size(); ++col)
+//            std::cout << mvSets[row][col] << "\t";
+//        std::cout << std::endl;
+//        if(row==50) break;
+//    }
 }
 
 
 void Initializer::FindHomography(vector<bool> &vbMatchesInliers, float &score, cv::Mat &H21)
 {
+    // check duration time
+    clock_t start, end;
+    double duration;
+
+    start = clock();
     // Number of putative matches
     const int N = mvMatches12.size();
+    // (index, mvIniMatches[index])
+    // mvIniMatches : correspondence
+
 
     // Normalize coordinates
     vector<cv::Point2f> vPn1, vPn2;
     cv::Mat T1, T2;
-    Normalize(mvKeys1,vPn1, T1);
-    Normalize(mvKeys2,vPn2, T2);
+    Normalize(mvKeys1,vPn1, T1); // mvKeys : keypoint
+    Normalize(mvKeys2,vPn2, T2); // T : intrinsic matrix
     cv::Mat T2inv = T2.inv();
+
+
+    /* matches에 random 이 아닌 sort 후 가장 작은 값으로 설정 */
+    // 1. match정보를 통해 2d-2d이므로 homography 추정 및 재투영
+//    cv::Mat initial_H = computeHomo(vPn1, vPn2);
+//    vector<cv::Point2f> testvPn1, testvPn2;
+//    reprojection_H(initial_H, vPn1, vPn2, mvSets, mvMatches12, mvKeys1, mvKeys2);
+//
+//    std::cout << "\nPROSAC OK" << std::endl;
 
     // Best Results variables
     score = 0.0;
@@ -144,16 +320,30 @@ void Initializer::FindHomography(vector<bool> &vbMatchesInliers, float &score, c
     vector<bool> vbCurrentInliers(N,false);
     float currentScore;
 
+    int n=0;
     // Perform all RANSAC iterations and save the solution with highest score
     for(int it=0; it<mMaxIterations; it++)
     {
         // Select a minimum set
         for(size_t j=0; j<8; j++)
         {
-            int idx = mvSets[it][j];
+            int idx = mvSets[it][j]; // randomly value in matrix -> now, sorted distance
 
             vPn1i[j] = vPn1[mvMatches12[idx].first];
             vPn2i[j] = vPn2[mvMatches12[idx].second];
+            // 무작위의 값에 있는 mvMatches12인덱스의 first, second의 인덱스를 가진 vPn1
+            // vPn1i[j] : img1_keypoints[matches[i].queryIdx].pt
+            // vPn2i[j] : img2_keypoints[matches[i].trainIdx].pt
+            // img1_keypoints : <cv::KeyPoint>, img1에서의 feature points
+            // img2_keypoints : <cv::KeyPoint>, img2에서의 feature points
+            // matches[i].queryIdx : 해당 match의 image 1에 대한 feature points의 index
+            // matches[i].trainIdx : 해당 match의 image 2에 대한 feature points의 index
+
+            // <cv::Point2f> vPn1 : image 1 에 대한 feature points의 pt만을 저장
+            // <std::pair> mvMatches12 : matches를 queryIdx와 trainIdx만을 pair로 저장
+            // img1_keypoints[matches[i].queryIdx].pt = match와 동일한 점에 대한 img1에서의 feature points의 index의 (x,y)
+            // 무작위의 match에 대한 first(queryIdx), second(trainIdx) 즉 img1, img2에 대한 feature point의 (x,y)
+            // 즉 무작위의 feature point (x,y) 좌표들을 vPn1i,vPn2i에 넣는다.
         }
 
         cv::Mat Hn = ComputeH21(vPn1i,vPn2i);
@@ -167,8 +357,21 @@ void Initializer::FindHomography(vector<bool> &vbMatchesInliers, float &score, c
             H21 = H21i.clone();
             vbMatchesInliers = vbCurrentInliers;
             score = currentScore;
+            n++;
+        }
+        if (n==5)
+        {
+            n=0;
+            std::cout << "\nearly stop - iteration : " << it << std::endl;
+            break;
         }
     }
+    end = clock();
+    duration = (double)(end - start) / CLOCKS_PER_SEC;
+
+    std::cout << "\nmax iteration : " << mMaxIterations << std::endl;
+    std::cout << "reprojection error : " << score << std::endl;
+    std::cout << "get homography time : " << duration << " s" << std::endl;
 }
 
 
@@ -305,6 +508,8 @@ cv::Mat Initializer::ComputeF21(const vector<cv::Point2f> &vP1,const vector<cv::
 float Initializer::CheckHomography(const cv::Mat &H21, const cv::Mat &H12, vector<bool> &vbMatchesInliers, float sigma)
 {   
     const int N = mvMatches12.size();
+
+//    std::cout << "checkHomo : " << N << std::endl;
 
     const float h11 = H21.at<float>(0,0);
     const float h12 = H21.at<float>(0,1);
@@ -768,10 +973,10 @@ void Initializer::Normalize(const vector<cv::KeyPoint> &vKeys, vector<cv::Point2
 
     for(int i=0; i<N; i++)
     {
-        vNormalizedPoints[i].x = vKeys[i].pt.x - meanX;
+        vNormalizedPoints[i].x = vKeys[i].pt.x - meanX; // normalize
         vNormalizedPoints[i].y = vKeys[i].pt.y - meanY;
 
-        meanDevX += fabs(vNormalizedPoints[i].x);
+        meanDevX += fabs(vNormalizedPoints[i].x); // 소수점 절대값
         meanDevY += fabs(vNormalizedPoints[i].y);
     }
 
@@ -783,8 +988,8 @@ void Initializer::Normalize(const vector<cv::KeyPoint> &vKeys, vector<cv::Point2
 
     for(int i=0; i<N; i++)
     {
-        vNormalizedPoints[i].x = vNormalizedPoints[i].x * sX;
-        vNormalizedPoints[i].y = vNormalizedPoints[i].y * sY;
+        vNormalizedPoints[i].x = vNormalizedPoints[i].x * sX; // x * (1 / (total(featurepointX - (totalfeaturepointX / N)) / N)
+        vNormalizedPoints[i].y = vNormalizedPoints[i].y * sY; // 평균편차 * x편차
     }
 
     T = cv::Mat::eye(3,3,CV_32F);
