@@ -24,7 +24,10 @@ Camera.RGB: 1
 #--------------------------------------------------------------------------------------------
 # ORB Parameters
 #--------------------------------------------------------------------------------------------
-
+# ORB Extractor: Type of feature descriptor
+ORBextractor.destType: AKAZE
+# ORB Extractor: ORB threshold
+ORBextractor.minThORB: 18
 # ORB Extractor: Number of features per image
 ORBextractor.nFeatures: 2000
 
