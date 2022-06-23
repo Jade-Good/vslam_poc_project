@@ -7,8 +7,10 @@ RUN sudo apt-get update -y && sudo apt-get upgrade -y
 
 RUN useradd -m user && yes password | passwd user
 
+RUN pwd
+
 RUN echo "== Start Debug build == " && \
-cd vslam_poc_project && \
+cd home/ORB_SLAM2 && \
 git remote update && \
 git fetch --all && \
 git checkout ${BRANCH} && \
@@ -18,7 +20,7 @@ mkdir build_debug && cd build_debug && \
 cmake -DCMAKE_BUILD_TYPE=Debug -GNinja .. && ninja
 
 RUN echo "== Start Release build == " && \
-cd vslam_poc_project && \
+cd home/ORB_SLAM2 && \
 git remote update && \
 git fetch --all && \
 git checkout ${BRANCH} && \
