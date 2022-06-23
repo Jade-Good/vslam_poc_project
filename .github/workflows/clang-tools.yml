@@ -25,5 +25,5 @@ jobs:
           echo "=== give permission to py file ==="
           chmod +x ./run-clang-format.py
           echo "=== clang-format check start ==="
-          ./run-clang-format.py --style file -r ../ORB_SLAM2
+          ./run-clang-format.py -r ../ORB_SLAM2
           echo "=== clang-format check finished ==="
