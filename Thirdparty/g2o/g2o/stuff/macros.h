@@ -28,17 +28,17 @@
 #define G2O_MACROS_H
 
 #ifndef DEG2RAD
-#define DEG2RAD(x) ((x)*0.01745329251994329575)
+#define DEG2RAD(x) ((x) *0.01745329251994329575)
 #endif
 
 #ifndef RAD2DEG
-#define RAD2DEG(x) ((x)*57.29577951308232087721)
+#define RAD2DEG(x) ((x) *57.29577951308232087721)
 #endif
 
 // GCC the one and only
 #if defined(__GNUC__)
-#define G2O_ATTRIBUTE_CONSTRUCTOR(func)                                        \
-  static void func(void) __attribute__((constructor));                         \
+#define G2O_ATTRIBUTE_CONSTRUCTOR(func)                \
+  static void func(void) __attribute__((constructor)); \
   static void func(void)
 
 #define G2O_ATTRIBUTE_UNUSED __attribute__((unused))
@@ -73,9 +73,9 @@ for static C++ objects. For GCC, uses a constructor attribute."
 
         (As posted on Stack OVerflow)
 */
-#define G2O_ATTRIBUTE_CONSTRUCTOR(f)                                           \
-  __pragma(section(".CRT$XCU", read)) static void __cdecl f(void);             \
-  __declspec(allocate(".CRT$XCU")) void(__cdecl * f##_)(void) = f;             \
+#define G2O_ATTRIBUTE_CONSTRUCTOR(f)                               \
+  __pragma(section(".CRT$XCU", read)) static void __cdecl f(void); \
+  __declspec(allocate(".CRT$XCU")) void(__cdecl * f##_)(void) = f; \
   static void __cdecl f(void)
 
 #define G2O_ATTRIBUTE_UNUSED
@@ -112,11 +112,10 @@ for static C++ objects. For GCC, uses a constructor attribute."
 // some macros that are only useful for c++
 #ifdef __cplusplus
 
-#define G2O_FSKIP_LINE(f)                                                      \
-  {                                                                            \
-    char c = ' ';                                                              \
-    while (c != '\n' && f.good() && !(f).eof())                                \
-      (f).get(c);                                                              \
+#define G2O_FSKIP_LINE(f)                                   \
+  {                                                         \
+    char c = ' ';                                           \
+    while (c != '\n' && f.good() && !(f).eof()) (f).get(c); \
   }
 
 #ifndef PVAR
@@ -131,6 +130,6 @@ for static C++ objects. For GCC, uses a constructor attribute."
 #define FIXED(s) std::fixed << s << std::resetiosflags(std::ios_base::fixed)
 #endif
 
-#endif // __cplusplus
+#endif  // __cplusplus
 
 #endif

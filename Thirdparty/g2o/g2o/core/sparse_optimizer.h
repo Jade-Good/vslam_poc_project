@@ -35,19 +35,20 @@
 
 #include <map>
 
-namespace g2o {
-
+namespace g2o
+{
 // forward declaration
 class ActivePathCostFunction;
 class OptimizationAlgorithm;
 class EstimatePropagatorCost;
 
-class SparseOptimizer : public OptimizableGraph {
-
+class SparseOptimizer : public OptimizableGraph
+{
 public:
-  enum {
+  enum
+  {
     AT_COMPUTEACTIVERROR = OptimizableGraph::AT_NUM_ELEMENTS,
-    AT_NUM_ELEMENTS, // keep as last element
+    AT_NUM_ELEMENTS,  // keep as last element
   };
 
   friend class ActivePathCostFunction;
@@ -67,7 +68,7 @@ public:
    * @param eset: the subgraph to be optimized.
    * @returns false if somethings goes wrong
    */
-  virtual bool initializeOptimization(HyperGraph::EdgeSet &eset);
+  virtual bool initializeOptimization(HyperGraph::EdgeSet& eset);
 
   /**
    * Initializes the structures for optimizing a portion of the graph specified
@@ -78,8 +79,9 @@ public:
    * @param level: is the level (in multilevel optimization)
    * @returns false if somethings goes wrong
    */
-  virtual bool initializeOptimization(HyperGraph::VertexSet &vset,
-                                      int level = 0);
+  virtual bool initializeOptimization(
+    HyperGraph::VertexSet& vset,
+    int level = 0);
 
   /**
    * Initializes the structures for optimizing the whole graph.
@@ -94,8 +96,9 @@ public:
   /**
    * HACK updating the internal structures for online processing
    */
-  virtual bool updateInitialization(HyperGraph::VertexSet &vset,
-                                    HyperGraph::EdgeSet &eset);
+  virtual bool updateInitialization(
+    HyperGraph::VertexSet& vset,
+    HyperGraph::EdgeSet& eset);
 
   /**
    * Propagates an initial guess from the vertex specified as origin.
@@ -112,12 +115,13 @@ public:
   /**
    * Same as above but using a specific propagator
    */
-  virtual void computeInitialGuess(EstimatePropagatorCost &propagator);
+  virtual void computeInitialGuess(EstimatePropagatorCost& propagator);
 
   /**
    * sets all vertices to their origin.
    */
   virtual void setToOrigin();
+
 
   /**
    * starts one optimization run given the current configuration of the graph,
@@ -133,8 +137,9 @@ public:
    * @param spinv: the sparse block matrix with the result
    * @returns false if the operation is not supported by the solver
    */
-  bool computeMarginals(SparseBlockMatrix<MatrixXd> &spinv,
-                        const std::vector<std::pair<int, int>> &blockIndices);
+  bool computeMarginals(
+    SparseBlockMatrix<MatrixXd>& spinv,
+    const std::vector<std::pair<int, int>>& blockIndices);
 
   /**
    * computes the inverse of the specified vertex.
@@ -142,14 +147,17 @@ public:
    * @param spinv: the sparse block matrix with the result
    * @returns false if the operation is not supported by the solver
    */
-  bool computeMarginals(SparseBlockMatrix<MatrixXd> &spinv,
-                        const Vertex *vertex) {
-    if (vertex->hessianIndex() < 0) {
+  bool computeMarginals(
+    SparseBlockMatrix<MatrixXd>& spinv,
+    const Vertex* vertex)
+  {
+    if (vertex->hessianIndex() < 0)
+    {
       return false;
     }
     std::vector<std::pair<int, int>> index;
     index.push_back(
-        std::pair<int, int>(vertex->hessianIndex(), vertex->hessianIndex()));
+      std::pair<int, int>(vertex->hessianIndex(), vertex->hessianIndex()));
     return computeMarginals(spinv, index);
   }
 
@@ -160,13 +168,17 @@ public:
    * @param spinv: the sparse block matrix with the result
    * @returns false if the operation is not supported by the solver
    */
-  bool computeMarginals(SparseBlockMatrix<MatrixXd> &spinv,
-                        const VertexContainer &vertices) {
+  bool computeMarginals(
+    SparseBlockMatrix<MatrixXd>& spinv,
+    const VertexContainer& vertices)
+  {
     std::vector<std::pair<int, int>> indices;
     for (VertexContainer::const_iterator it = vertices.begin();
-         it != vertices.end(); ++it) {
+         it != vertices.end();
+         ++it)
+    {
       indices.push_back(
-          std::pair<int, int>((*it)->hessianIndex(), (*it)->hessianIndex()));
+        std::pair<int, int>((*it)->hessianIndex(), (*it)->hessianIndex()));
     }
     return computeMarginals(spinv, indices);
   }
@@ -175,7 +187,7 @@ public:
   // The gauge should be fixed() and then the optimization can work (if no
   // additional dof are in the system. The default implementation returns a node
   // with maximum dimension.
-  virtual Vertex *findGauge();
+  virtual Vertex* findGauge();
 
   bool gaugeFreedom();
 
@@ -189,25 +201,43 @@ public:
   double activeRobustChi2() const;
 
   //! verbose information during optimization
-  bool verbose() const { return _verbose; }
+  bool verbose() const
+  {
+    return _verbose;
+  }
   void setVerbose(bool verbose);
 
   /**
    * sets a variable checked at every iteration to force a user stop. The
    * iteration exits when the variable is true;
    */
-  void setForceStopFlag(bool *flag);
-  bool *forceStopFlag() const { return _forceStopFlag; };
+  void setForceStopFlag(bool* flag);
+  bool* forceStopFlag() const
+  {
+    return _forceStopFlag;
+  };
 
   //! if external stop flag is given, return its state. False otherwise
-  bool terminate() { return _forceStopFlag ? (*_forceStopFlag) : false; }
+  bool terminate()
+  {
+    return _forceStopFlag ? (*_forceStopFlag) : false;
+  }
 
   //! the index mapping of the vertices
-  const VertexContainer &indexMapping() const { return _ivMap; }
+  const VertexContainer& indexMapping() const
+  {
+    return _ivMap;
+  }
   //! the vertices active in the current optimization
-  const VertexContainer &activeVertices() const { return _activeVertices; }
+  const VertexContainer& activeVertices() const
+  {
+    return _activeVertices;
+  }
   //! the edges active in the current optimization
-  const EdgeContainer &activeEdges() const { return _activeEdges; }
+  const EdgeContainer& activeEdges() const
+  {
+    return _activeEdges;
+  }
 
   /**
    * Remove a vertex. If the vertex is contained in the currently active set
@@ -215,42 +245,48 @@ public:
    * index mapping is erased. In case you need the index mapping for
    * manipulating the graph, you have to store it in your own copy.
    */
-  virtual bool removeVertex(HyperGraph::Vertex *v);
+  virtual bool removeVertex(HyperGraph::Vertex* v);
 
   /**
    * search for an edge in _activeVertices and return the iterator pointing to
    * it getActiveVertices().end() if not found
    */
-  VertexContainer::const_iterator
-  findActiveVertex(const OptimizableGraph::Vertex *v) const;
+  VertexContainer::const_iterator findActiveVertex(
+    const OptimizableGraph::Vertex* v) const;
   /**
    * search for an edge in _activeEdges and return the iterator pointing to it
    * getActiveEdges().end() if not found
    */
-  EdgeContainer::const_iterator
-  findActiveEdge(const OptimizableGraph::Edge *e) const;
+  EdgeContainer::const_iterator findActiveEdge(
+    const OptimizableGraph::Edge* e) const;
 
   //! the solver used by the optimizer
-  const OptimizationAlgorithm *algorithm() const { return _algorithm; }
-  OptimizationAlgorithm *solver() { return _algorithm; }
-  void setAlgorithm(OptimizationAlgorithm *algorithm);
+  const OptimizationAlgorithm* algorithm() const
+  {
+    return _algorithm;
+  }
+  OptimizationAlgorithm* solver()
+  {
+    return _algorithm;
+  }
+  void setAlgorithm(OptimizationAlgorithm* algorithm);
 
   //! push the estimate of a subset of the variables onto a stack
-  void push(SparseOptimizer::VertexContainer &vlist);
+  void push(SparseOptimizer::VertexContainer& vlist);
   //! push the estimate of a subset of the variables onto a stack
-  void push(HyperGraph::VertexSet &vlist);
+  void push(HyperGraph::VertexSet& vlist);
   //! push all the active vertices onto a stack
   void push();
   //! pop (restore) the estimate a subset of the variables from the stack
-  void pop(SparseOptimizer::VertexContainer &vlist);
+  void pop(SparseOptimizer::VertexContainer& vlist);
   //! pop (restore) the estimate a subset of the variables from the stack
-  void pop(HyperGraph::VertexSet &vlist);
+  void pop(HyperGraph::VertexSet& vlist);
   //! pop (restore) the estimate of the active vertices from the stack
   void pop();
 
   //! ignore the latest stored element on the stack, remove it from the stack
   //! but do not restore the estimate
-  void discardTop(SparseOptimizer::VertexContainer &vlist);
+  void discardTop(SparseOptimizer::VertexContainer& vlist);
   //! same as above, but for the active vertices
   void discardTop();
   using OptimizableGraph::discardTop;
@@ -271,7 +307,8 @@ public:
    * Linearizes the system by computing the Jacobians for the nodes
    * and edges in the graph
    */
-  G2O_ATTRIBUTE_DEPRECATED(void linearizeSystem()) {
+  G2O_ATTRIBUTE_DEPRECATED(void linearizeSystem())
+  {
     // nothing needed, linearization is now done inside the solver
   }
 
@@ -280,54 +317,62 @@ public:
    * @param update: the double vector containing the stacked
    * elements of the increments on the vertices.
    */
-  void update(const double *update);
+  void update(const double* update);
 
   /**
      returns the set of batch statistics about the optimisation
   */
-  const BatchStatisticsContainer &batchStatistics() const {
+  const BatchStatisticsContainer& batchStatistics() const
+  {
     return _batchStatistics;
   }
   /**
      returns the set of batch statistics about the optimisation
   */
-  BatchStatisticsContainer &batchStatistics() { return _batchStatistics; }
+  BatchStatisticsContainer& batchStatistics()
+  {
+    return _batchStatistics;
+  }
 
   void setComputeBatchStatistics(bool computeBatchStatistics);
 
-  bool computeBatchStatistics() const { return _computeBatchStatistics; }
+  bool computeBatchStatistics() const
+  {
+    return _computeBatchStatistics;
+  }
 
   /**** callbacks ****/
   //! add an action to be executed before the error vectors are computed
-  bool addComputeErrorAction(HyperGraphAction *action);
+  bool addComputeErrorAction(HyperGraphAction* action);
   //! remove an action that should no longer be execured before computing the
   //! error vectors
-  bool removeComputeErrorAction(HyperGraphAction *action);
+  bool removeComputeErrorAction(HyperGraphAction* action);
+
 
 protected:
-  bool *_forceStopFlag;
+  bool* _forceStopFlag;
   bool _verbose;
 
   VertexContainer _ivMap;
-  VertexContainer _activeVertices; ///< sorted according to VertexIDCompare
-  EdgeContainer _activeEdges;      ///< sorted according to EdgeIDCompare
+  VertexContainer _activeVertices;  ///< sorted according to VertexIDCompare
+  EdgeContainer _activeEdges;  ///< sorted according to EdgeIDCompare
 
   void sortVectorContainers();
 
-  OptimizationAlgorithm *_algorithm;
+  OptimizationAlgorithm* _algorithm;
 
   /**
    * builds the mapping of the active vertices to the (block) row / column in
    * the Hessian
    */
-  bool buildIndexMapping(SparseOptimizer::VertexContainer &vlist);
+  bool buildIndexMapping(SparseOptimizer::VertexContainer& vlist);
   void clearIndexMapping();
 
   BatchStatisticsContainer
-      _batchStatistics; ///< global statistics of the optimizer, e.g., timing,
-                        ///< num-non-zeros
+    _batchStatistics;  ///< global statistics of the optimizer, e.g., timing,
+                       ///< num-non-zeros
   bool _computeBatchStatistics;
 };
-} // namespace g2o
+}  // namespace g2o
 
 #endif

@@ -37,8 +37,8 @@
 #include "base_edge.h"
 #include "robust_kernel.h"
 
-namespace g2o {
-
+namespace g2o
+{
 using namespace Eigen;
 
 /**
@@ -48,14 +48,17 @@ using namespace Eigen;
  * D - Dimension of the measurement
  * E - type to represent the measurement
  */
-template <int D, typename E> class BaseMultiEdge : public BaseEdge<D, E> {
+template<int D, typename E>
+class BaseMultiEdge : public BaseEdge<D, E>
+{
 public:
   /**
    * \brief helper for mapping the Hessian memory of the upper triangular block
    */
-  struct HessianHelper {
-    Eigen::Map<MatrixXd> matrix; ///< the mapped memory
-    bool transposed;             ///< the block has to be transposed
+  struct HessianHelper
+  {
+    Eigen::Map<MatrixXd> matrix;  ///< the mapped memory
+    bool transposed;  ///< the block has to be transposed
     HessianHelper() : matrix(0, 0, 0), transposed(false) {}
   };
 
@@ -65,13 +68,13 @@ public:
   typedef MatrixXd::MapType JacobianType;
   typedef typename BaseEdge<D, E>::ErrorVector ErrorVector;
   typedef typename BaseEdge<D, E>::InformationType InformationType;
-  typedef Eigen::Map<MatrixXd,
-                     MatrixXd::Flags & AlignedBit ? Aligned : Unaligned>
+  typedef Eigen::
+    Map<MatrixXd, MatrixXd::Flags & AlignedBit ? Aligned : Unaligned>
       HessianBlockType;
 
   BaseMultiEdge() : BaseEdge<D, E>() {}
 
-  virtual void linearizeOplus(JacobianWorkspace &jacobianWorkspace);
+  virtual void linearizeOplus(JacobianWorkspace& jacobianWorkspace);
 
   /**
    * Linearizes the oplus operator in the vertex, and stores
@@ -85,7 +88,7 @@ public:
 
   virtual void constructQuadraticForm();
 
-  virtual void mapHessianMemory(double *d, int i, int j, bool rowMajor);
+  virtual void mapHessianMemory(double* d, int i, int j, bool rowMajor);
 
   using BaseEdge<D, E>::computeError;
 
@@ -98,10 +101,11 @@ protected:
 
   std::vector<HessianHelper> _hessian;
   std::vector<JacobianType, aligned_allocator<JacobianType>>
-      _jacobianOplus; ///< jacobians of the edge (w.r.t. oplus)
+    _jacobianOplus;  ///< jacobians of the edge (w.r.t. oplus)
 
-  void computeQuadraticForm(const InformationType &omega,
-                            const ErrorVector &weightedError);
+  void computeQuadraticForm(
+    const InformationType& omega,
+    const ErrorVector& weightedError);
 
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -109,6 +113,6 @@ public:
 
 #include "base_multi_edge.hpp"
 
-} // end namespace g2o
+}  // end namespace g2o
 
 #endif

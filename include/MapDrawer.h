@@ -21,16 +21,17 @@
 #ifndef MAPDRAWER_H
 #define MAPDRAWER_H
 
+#include <pangolin/pangolin.h>
 #include "KeyFrame.h"
 #include "Map.h"
 #include "MapPoint.h"
-#include <pangolin/pangolin.h>
 
 #include <mutex>
 
-namespace ORB_SLAM2 {
-
-class MapDrawer {
+namespace ORB_SLAM2
+{
+class MapDrawer
+{
 public:
   MapDrawer(Map *pMap, const string &strSettingPath);
 
@@ -56,6 +57,6 @@ private:
   std::mutex mMutexCamera;
 };
 
-} // namespace ORB_SLAM2
+}  // namespace ORB_SLAM2
 
-#endif // MAPDRAWER_H
+#endif  // MAPDRAWER_H

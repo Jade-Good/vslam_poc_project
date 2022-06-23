@@ -23,27 +23,27 @@ jobs:
       - name: pre-build 3rdParty libs 
         run: |
           echo "=== Build start ==="
-          echo rkdtnals423! | sudo -S echo ""         
+          echo rkdtnals423 | sudo -S echo ""         
           cd dockerfiles
           echo "=== Log Docker image status ==="
           sudo docker images 
           echo "=== Temporary Docker image build start ==="              
-          sudo docker build --force-rm --no-cache -t slam:base_temp . -f base.dockerfile
+          sudo docker build --force-rm --no-cache -t SLAM_DUNK:base_temp . -f base.dockerfile
           echo "=== Temporary Docker image build finished ==="
           echo "=== Log Docker image status ==="
-          echo rkdtnals423! | sudo -S echo ""
+          echo rkdtnals423 | sudo -S echo ""
           sudo docker images
           echo "=== Replace old Docker image with temporary image start ==="
-          sudo docker rmi slam:base
-          sudo docker image tag slam:base_temp slam:base
-          sudo docker rmi slam:base_temp
+          sudo docker rmi SLAM_DUNK:base
+          sudo docker image tag SLAM_DUNK:base_temp SLAM_DUNK:base
+          sudo docker rmi SLAM_DUNK:base_temp
           sudo docker images 
           echo "=== Job finished ===" 
 
       - name: Clean up Docker image if build fails
         run: |
           echo "=== Clean up start ==="  
-          echo rkdtnals423! | sudo -S echo "" 
+          echo rkdtnals423 | sudo -S echo "" 
           echo "=== Log Docker image status ==="
           sudo docker images 
           sudo docker rmi -f $(sudo docker images -f "dangling=true" -q)
@@ -51,4 +51,4 @@ jobs:
           echo "=== Log Docker image status ==="
           sudo docker images
           echo "=== Clean up finished ==="
-        if: failure()
+        if: failure() 

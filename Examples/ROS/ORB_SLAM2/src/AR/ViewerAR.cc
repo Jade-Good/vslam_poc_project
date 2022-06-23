@@ -28,11 +28,12 @@
 
 using namespace std;
 
-namespace ORB_SLAM2 {
-
+namespace ORB_SLAM2
+{
 const float eps = 1e-4;
 
-cv::Mat ExpSO3(const float &x, const float &y, const float &z) {
+cv::Mat ExpSO3(const float &x, const float &y, const float &z)
+{
   cv::Mat I = cv::Mat::eye(3, 3, CV_32F);
   const float d2 = x * x + y * y + z * z;
   const float d = sqrt(d2);
@@ -43,13 +44,15 @@ cv::Mat ExpSO3(const float &x, const float &y, const float &z) {
     return (I + W * sin(d) / d + W * W * (1.0f - cos(d)) / d2);
 }
 
-cv::Mat ExpSO3(const cv::Mat &v) {
+cv::Mat ExpSO3(const cv::Mat &v)
+{
   return ExpSO3(v.at<float>(0), v.at<float>(1), v.at<float>(2));
 }
 
 ViewerAR::ViewerAR() {}
 
-void ViewerAR::Run() {
+void ViewerAR::Run()
+{
   int w, h, wui;
 
   cv::Mat im, Tcw;
@@ -57,11 +60,13 @@ void ViewerAR::Run() {
   vector<cv::KeyPoint> vKeys;
   vector<MapPoint *> vMPs;
 
-  while (1) {
+  while (1)
+  {
     GetImagePose(im, Tcw, status, vKeys, vMPs);
     if (im.empty())
       cv::waitKey(mT);
-    else {
+    else
+    {
       w = im.cols;
       h = im.rows;
       break;
@@ -75,8 +80,8 @@ void ViewerAR::Run() {
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_BLEND);
 
-  pangolin::CreatePanel("menu").SetBounds(0.0, 1.0, 0.0,
-                                          pangolin::Attach::Pix(wui));
+  pangolin::CreatePanel("menu").SetBounds(
+    0.0, 1.0, 0.0, pangolin::Attach::Pix(wui));
   pangolin::Var<bool> menu_detectplane("menu.Insert Cube", false, false);
   pangolin::Var<bool> menu_clear("menu.Clear All", false, false);
   pangolin::Var<bool> menu_drawim("menu.Draw Image", true, true);
@@ -87,29 +92,32 @@ void ViewerAR::Run() {
   pangolin::Var<float> menu_sizegrid("menu. Element Size", 0.05, 0.01, 0.3);
   pangolin::Var<bool> menu_drawpoints("menu.Draw Points", false, true);
 
-  pangolin::Var<bool> menu_LocalizationMode("menu.Localization Mode", false,
-                                            true);
+  pangolin::Var<bool> menu_LocalizationMode(
+    "menu.Localization Mode", false, true);
   bool bLocalizationMode = false;
 
   pangolin::View &d_image =
-      pangolin::Display("image")
-          .SetBounds(0, 1.0f, pangolin::Attach::Pix(wui), 1.0f, (float)w / h)
-          .SetLock(pangolin::LockLeft, pangolin::LockTop);
+    pangolin::Display("image")
+      .SetBounds(0, 1.0f, pangolin::Attach::Pix(wui), 1.0f, (float) w / h)
+      .SetLock(pangolin::LockLeft, pangolin::LockTop);
 
-  pangolin::GlTexture imageTexture(w, h, GL_RGB, false, 0, GL_RGB,
-                                   GL_UNSIGNED_BYTE);
+  pangolin::GlTexture imageTexture(
+    w, h, GL_RGB, false, 0, GL_RGB, GL_UNSIGNED_BYTE);
 
   pangolin::OpenGlMatrixSpec P =
-      pangolin::ProjectionMatrixRDF_TopLeft(w, h, fx, fy, cx, cy, 0.001, 1000);
+    pangolin::ProjectionMatrixRDF_TopLeft(w, h, fx, fy, cx, cy, 0.001, 1000);
 
   vector<Plane *> vpPlane;
 
-  while (1) {
-
-    if (menu_LocalizationMode && !bLocalizationMode) {
+  while (1)
+  {
+    if (menu_LocalizationMode && !bLocalizationMode)
+    {
       mpSystem->ActivateLocalizationMode();
       bLocalizationMode = true;
-    } else if (!menu_LocalizationMode && bLocalizationMode) {
+    }
+    else if (!menu_LocalizationMode && bLocalizationMode)
+    {
       mpSystem->DeactivateLocalizationMode();
       bLocalizationMode = false;
     }
@@ -145,10 +153,14 @@ void ViewerAR::Run() {
     LoadCameraPose(Tcw);
 
     // Draw virtual things
-    if (status == 2) {
-      if (menu_clear) {
-        if (!vpPlane.empty()) {
-          for (size_t i = 0; i < vpPlane.size(); i++) {
+    if (status == 2)
+    {
+      if (menu_clear)
+      {
+        if (!vpPlane.empty())
+        {
+          for (size_t i = 0; i < vpPlane.size(); i++)
+          {
             delete vpPlane[i];
           }
           vpPlane.clear();
@@ -156,47 +168,59 @@ void ViewerAR::Run() {
         }
         menu_clear = false;
       }
-      if (menu_detectplane) {
+      if (menu_detectplane)
+      {
         Plane *pPlane = DetectPlane(Tcw, vMPs, 50);
-        if (pPlane) {
+        if (pPlane)
+        {
           cout << "New virtual cube inserted!" << endl;
           vpPlane.push_back(pPlane);
-        } else {
+        }
+        else
+        {
           cout << "No plane detected. Point the camera to a planar region."
                << endl;
         }
         menu_detectplane = false;
       }
 
-      if (!vpPlane.empty()) {
+      if (!vpPlane.empty())
+      {
         // Recompute plane if there has been a loop closure or global BA
         // In localization mode, map is not updated so we do not need to
         // recompute
         bool bRecompute = false;
-        if (!bLocalizationMode) {
-          if (mpSystem->MapChanged()) {
+        if (!bLocalizationMode)
+        {
+          if (mpSystem->MapChanged())
+          {
             cout << "Map changed. All virtual elements are recomputed!" << endl;
             bRecompute = true;
           }
         }
 
-        for (size_t i = 0; i < vpPlane.size(); i++) {
+        for (size_t i = 0; i < vpPlane.size(); i++)
+        {
           Plane *pPlane = vpPlane[i];
 
-          if (pPlane) {
-            if (bRecompute) {
+          if (pPlane)
+          {
+            if (bRecompute)
+            {
               pPlane->Recompute();
             }
             glPushMatrix();
             pPlane->glTpw.Multiply();
 
             // Draw cube
-            if (menu_drawcube) {
+            if (menu_drawcube)
+            {
               DrawCube(menu_cubesize);
             }
 
             // Draw grid plane
-            if (menu_drawgrid) {
+            if (menu_drawgrid)
+            {
               DrawPlane(menu_ngrid, menu_sizegrid);
             }
 
@@ -211,10 +235,13 @@ void ViewerAR::Run() {
   }
 }
 
-void ViewerAR::SetImagePose(const cv::Mat &im, const cv::Mat &Tcw,
-                            const int &status,
-                            const vector<cv::KeyPoint> &vKeys,
-                            const vector<ORB_SLAM2::MapPoint *> &vMPs) {
+void ViewerAR::SetImagePose(
+  const cv::Mat &im,
+  const cv::Mat &Tcw,
+  const int &status,
+  const vector<cv::KeyPoint> &vKeys,
+  const vector<ORB_SLAM2::MapPoint *> &vMPs)
+{
   unique_lock<mutex> lock(mMutexPoseImage);
   mImage = im.clone();
   mTcw = Tcw.clone();
@@ -223,9 +250,13 @@ void ViewerAR::SetImagePose(const cv::Mat &im, const cv::Mat &Tcw,
   mvMPs = vMPs;
 }
 
-void ViewerAR::GetImagePose(cv::Mat &im, cv::Mat &Tcw, int &status,
-                            std::vector<cv::KeyPoint> &vKeys,
-                            std::vector<MapPoint *> &vMPs) {
+void ViewerAR::GetImagePose(
+  cv::Mat &im,
+  cv::Mat &Tcw,
+  int &status,
+  std::vector<cv::KeyPoint> &vKeys,
+  std::vector<MapPoint *> &vMPs)
+{
   unique_lock<mutex> lock(mMutexPoseImage);
   im = mImage.clone();
   Tcw = mTcw.clone();
@@ -234,8 +265,10 @@ void ViewerAR::GetImagePose(cv::Mat &im, cv::Mat &Tcw, int &status,
   vMPs = mvMPs;
 }
 
-void ViewerAR::LoadCameraPose(const cv::Mat &Tcw) {
-  if (!Tcw.empty()) {
+void ViewerAR::LoadCameraPose(const cv::Mat &Tcw)
+{
+  if (!Tcw.empty())
+  {
     pangolin::OpenGlMatrix M;
 
     M.m[0] = Tcw.at<float>(0, 0);
@@ -262,106 +295,201 @@ void ViewerAR::LoadCameraPose(const cv::Mat &Tcw) {
   }
 }
 
-void ViewerAR::PrintStatus(const int &status, const bool &bLocMode,
-                           cv::Mat &im) {
-  if (!bLocMode) {
-    switch (status) {
-    case 1: {
-      AddTextToImage("SLAM NOT INITIALIZED", im, 255, 0, 0);
-      break;
+void ViewerAR::PrintStatus(const int &status, const bool &bLocMode, cv::Mat &im)
+{
+  if (!bLocMode)
+  {
+    switch (status)
+    {
+      case 1:
+      {
+        AddTextToImage("SLAM NOT INITIALIZED", im, 255, 0, 0);
+        break;
+      }
+      case 2:
+      {
+        AddTextToImage("SLAM ON", im, 0, 255, 0);
+        break;
+      }
+      case 3:
+      {
+        AddTextToImage("SLAM LOST", im, 255, 0, 0);
+        break;
+      }
     }
-    case 2: {
-      AddTextToImage("SLAM ON", im, 0, 255, 0);
-      break;
-    }
-    case 3: {
-      AddTextToImage("SLAM LOST", im, 255, 0, 0);
-      break;
-    }
-    }
-  } else {
-    switch (status) {
-    case 1: {
-      AddTextToImage("SLAM NOT INITIALIZED", im, 255, 0, 0);
-      break;
-    }
-    case 2: {
-      AddTextToImage("LOCALIZATION ON", im, 0, 255, 0);
-      break;
-    }
-    case 3: {
-      AddTextToImage("LOCALIZATION LOST", im, 255, 0, 0);
-      break;
-    }
+  }
+  else
+  {
+    switch (status)
+    {
+      case 1:
+      {
+        AddTextToImage("SLAM NOT INITIALIZED", im, 255, 0, 0);
+        break;
+      }
+      case 2:
+      {
+        AddTextToImage("LOCALIZATION ON", im, 0, 255, 0);
+        break;
+      }
+      case 3:
+      {
+        AddTextToImage("LOCALIZATION LOST", im, 255, 0, 0);
+        break;
+      }
     }
   }
 }
 
-void ViewerAR::AddTextToImage(const string &s, cv::Mat &im, const int r,
-                              const int g, const int b) {
+void ViewerAR::AddTextToImage(
+  const string &s,
+  cv::Mat &im,
+  const int r,
+  const int g,
+  const int b)
+{
   int l = 10;
   // imText.rowRange(im.rows-imText.rows,imText.rows) =
   // cv::Mat::zeros(textSize.height+10,im.cols,im.type());
-  cv::putText(im, s, cv::Point(l, im.rows - l), cv::FONT_HERSHEY_PLAIN, 1.5,
-              cv::Scalar(255, 255, 255), 2, 8);
-  cv::putText(im, s, cv::Point(l - 1, im.rows - l), cv::FONT_HERSHEY_PLAIN, 1.5,
-              cv::Scalar(255, 255, 255), 2, 8);
-  cv::putText(im, s, cv::Point(l + 1, im.rows - l), cv::FONT_HERSHEY_PLAIN, 1.5,
-              cv::Scalar(255, 255, 255), 2, 8);
-  cv::putText(im, s, cv::Point(l - 1, im.rows - (l - 1)),
-              cv::FONT_HERSHEY_PLAIN, 1.5, cv::Scalar(255, 255, 255), 2, 8);
-  cv::putText(im, s, cv::Point(l, im.rows - (l - 1)), cv::FONT_HERSHEY_PLAIN,
-              1.5, cv::Scalar(255, 255, 255), 2, 8);
-  cv::putText(im, s, cv::Point(l + 1, im.rows - (l - 1)),
-              cv::FONT_HERSHEY_PLAIN, 1.5, cv::Scalar(255, 255, 255), 2, 8);
-  cv::putText(im, s, cv::Point(l - 1, im.rows - (l + 1)),
-              cv::FONT_HERSHEY_PLAIN, 1.5, cv::Scalar(255, 255, 255), 2, 8);
-  cv::putText(im, s, cv::Point(l, im.rows - (l + 1)), cv::FONT_HERSHEY_PLAIN,
-              1.5, cv::Scalar(255, 255, 255), 2, 8);
-  cv::putText(im, s, cv::Point(l + 1, im.rows - (l + 1)),
-              cv::FONT_HERSHEY_PLAIN, 1.5, cv::Scalar(255, 255, 255), 2, 8);
+  cv::putText(
+    im,
+    s,
+    cv::Point(l, im.rows - l),
+    cv::FONT_HERSHEY_PLAIN,
+    1.5,
+    cv::Scalar(255, 255, 255),
+    2,
+    8);
+  cv::putText(
+    im,
+    s,
+    cv::Point(l - 1, im.rows - l),
+    cv::FONT_HERSHEY_PLAIN,
+    1.5,
+    cv::Scalar(255, 255, 255),
+    2,
+    8);
+  cv::putText(
+    im,
+    s,
+    cv::Point(l + 1, im.rows - l),
+    cv::FONT_HERSHEY_PLAIN,
+    1.5,
+    cv::Scalar(255, 255, 255),
+    2,
+    8);
+  cv::putText(
+    im,
+    s,
+    cv::Point(l - 1, im.rows - (l - 1)),
+    cv::FONT_HERSHEY_PLAIN,
+    1.5,
+    cv::Scalar(255, 255, 255),
+    2,
+    8);
+  cv::putText(
+    im,
+    s,
+    cv::Point(l, im.rows - (l - 1)),
+    cv::FONT_HERSHEY_PLAIN,
+    1.5,
+    cv::Scalar(255, 255, 255),
+    2,
+    8);
+  cv::putText(
+    im,
+    s,
+    cv::Point(l + 1, im.rows - (l - 1)),
+    cv::FONT_HERSHEY_PLAIN,
+    1.5,
+    cv::Scalar(255, 255, 255),
+    2,
+    8);
+  cv::putText(
+    im,
+    s,
+    cv::Point(l - 1, im.rows - (l + 1)),
+    cv::FONT_HERSHEY_PLAIN,
+    1.5,
+    cv::Scalar(255, 255, 255),
+    2,
+    8);
+  cv::putText(
+    im,
+    s,
+    cv::Point(l, im.rows - (l + 1)),
+    cv::FONT_HERSHEY_PLAIN,
+    1.5,
+    cv::Scalar(255, 255, 255),
+    2,
+    8);
+  cv::putText(
+    im,
+    s,
+    cv::Point(l + 1, im.rows - (l + 1)),
+    cv::FONT_HERSHEY_PLAIN,
+    1.5,
+    cv::Scalar(255, 255, 255),
+    2,
+    8);
 
-  cv::putText(im, s, cv::Point(l, im.rows - l), cv::FONT_HERSHEY_PLAIN, 1.5,
-              cv::Scalar(r, g, b), 2, 8);
+  cv::putText(
+    im,
+    s,
+    cv::Point(l, im.rows - l),
+    cv::FONT_HERSHEY_PLAIN,
+    1.5,
+    cv::Scalar(r, g, b),
+    2,
+    8);
 }
 
-void ViewerAR::DrawImageTexture(pangolin::GlTexture &imageTexture,
-                                cv::Mat &im) {
-  if (!im.empty()) {
+void ViewerAR::DrawImageTexture(pangolin::GlTexture &imageTexture, cv::Mat &im)
+{
+  if (!im.empty())
+  {
     imageTexture.Upload(im.data, GL_RGB, GL_UNSIGNED_BYTE);
     imageTexture.RenderToViewportFlipY();
   }
 }
 
-void ViewerAR::DrawCube(const float &size, const float x, const float y,
-                        const float z) {
+void ViewerAR::DrawCube(
+  const float &size,
+  const float x,
+  const float y,
+  const float z)
+{
   pangolin::OpenGlMatrix M =
-      pangolin::OpenGlMatrix::Translate(-x, -size - y, -z);
+    pangolin::OpenGlMatrix::Translate(-x, -size - y, -z);
   glPushMatrix();
   M.Multiply();
   pangolin::glDrawColouredCube(-size, size);
   glPopMatrix();
 }
 
-void ViewerAR::DrawPlane(Plane *pPlane, int ndivs, float ndivsize) {
+void ViewerAR::DrawPlane(Plane *pPlane, int ndivs, float ndivsize)
+{
   glPushMatrix();
   pPlane->glTpw.Multiply();
   DrawPlane(ndivs, ndivsize);
   glPopMatrix();
 }
 
-void ViewerAR::DrawPlane(int ndivs, float ndivsize) {
+void ViewerAR::DrawPlane(int ndivs, float ndivsize)
+{
   // Plane parallel to x-z at origin with normal -y
   const float minx = -ndivs * ndivsize;
   const float minz = -ndivs * ndivsize;
   const float maxx = ndivs * ndivsize;
   const float maxz = ndivs * ndivsize;
 
+
   glLineWidth(2);
   glColor3f(0.7f, 0.7f, 1.0f);
   glBegin(GL_LINES);
 
-  for (int n = 0; n <= 2 * ndivs; n++) {
+  for (int n = 0; n <= 2 * ndivs; n++)
+  {
     glVertex3f(minx + ndivsize * n, 0, minz);
     glVertex3f(minx + ndivsize * n, 0, maxz);
     glVertex3f(minx, 0, minz + ndivsize * n);
@@ -371,31 +499,41 @@ void ViewerAR::DrawPlane(int ndivs, float ndivsize) {
   glEnd();
 }
 
-void ViewerAR::DrawTrackedPoints(const std::vector<cv::KeyPoint> &vKeys,
-                                 const std::vector<MapPoint *> &vMPs,
-                                 cv::Mat &im) {
+void ViewerAR::DrawTrackedPoints(
+  const std::vector<cv::KeyPoint> &vKeys,
+  const std::vector<MapPoint *> &vMPs,
+  cv::Mat &im)
+{
   const int N = vKeys.size();
 
-  for (int i = 0; i < N; i++) {
-    if (vMPs[i]) {
+
+  for (int i = 0; i < N; i++)
+  {
+    if (vMPs[i])
+    {
       cv::circle(im, vKeys[i].pt, 1, cv::Scalar(0, 255, 0), -1);
     }
   }
 }
 
-Plane *ViewerAR::DetectPlane(const cv::Mat Tcw,
-                             const std::vector<MapPoint *> &vMPs,
-                             const int iterations) {
+Plane *ViewerAR::DetectPlane(
+  const cv::Mat Tcw,
+  const std::vector<MapPoint *> &vMPs,
+  const int iterations)
+{
   // Retrieve 3D points
   vector<cv::Mat> vPoints;
   vPoints.reserve(vMPs.size());
   vector<MapPoint *> vPointMP;
   vPointMP.reserve(vMPs.size());
 
-  for (size_t i = 0; i < vMPs.size(); i++) {
+  for (size_t i = 0; i < vMPs.size(); i++)
+  {
     MapPoint *pMP = vMPs[i];
-    if (pMP) {
-      if (pMP->Observations() > 5) {
+    if (pMP)
+    {
+      if (pMP->Observations() > 5)
+      {
         vPoints.push_back(pMP->GetWorldPos());
         vPointMP.push_back(pMP);
       }
@@ -407,12 +545,14 @@ Plane *ViewerAR::DetectPlane(const cv::Mat Tcw,
   if (N < 50)
     return NULL;
 
+
   // Indices for minimum set selection
   vector<size_t> vAllIndices;
   vAllIndices.reserve(N);
   vector<size_t> vAvailableIndices;
 
-  for (int i = 0; i < N; i++) {
+  for (int i = 0; i < N; i++)
+  {
     vAllIndices.push_back(i);
   }
 
@@ -420,14 +560,16 @@ Plane *ViewerAR::DetectPlane(const cv::Mat Tcw,
   vector<float> bestvDist;
 
   // RANSAC
-  for (int n = 0; n < iterations; n++) {
+  for (int n = 0; n < iterations; n++)
+  {
     vAvailableIndices = vAllIndices;
 
     cv::Mat A(3, 4, CV_32F);
     A.col(3) = cv::Mat::ones(3, 1, CV_32F);
 
     // Get min set of points
-    for (short i = 0; i < 3; ++i) {
+    for (short i = 0; i < 3; ++i)
+    {
       int randi = DUtils::Random::RandomInt(0, vAvailableIndices.size() - 1);
 
       int idx = vAvailableIndices[randi];
@@ -450,20 +592,23 @@ Plane *ViewerAR::DetectPlane(const cv::Mat Tcw,
 
     const float f = 1.0f / sqrt(a * a + b * b + c * c + d * d);
 
-    for (int i = 0; i < N; i++) {
+    for (int i = 0; i < N; i++)
+    {
       vDistances[i] =
-          fabs(vPoints[i].at<float>(0) * a + vPoints[i].at<float>(1) * b +
-               vPoints[i].at<float>(2) * c + d) *
-          f;
+        fabs(
+          vPoints[i].at<float>(0) * a + vPoints[i].at<float>(1) * b +
+          vPoints[i].at<float>(2) * c + d) *
+        f;
     }
 
     vector<float> vSorted = vDistances;
     sort(vSorted.begin(), vSorted.end());
 
-    int nth = max((int)(0.2 * N), 20);
+    int nth = max((int) (0.2 * N), 20);
     const float medianDist = vSorted[nth];
 
-    if (medianDist < bestDist) {
+    if (medianDist < bestDist)
+    {
       bestDist = medianDist;
       bestvDist = vDistances;
     }
@@ -473,8 +618,10 @@ Plane *ViewerAR::DetectPlane(const cv::Mat Tcw,
   const float th = 1.4 * bestDist;
   vector<bool> vbInliers(N, false);
   int nInliers = 0;
-  for (int i = 0; i < N; i++) {
-    if (bestvDist[i] < th) {
+  for (int i = 0; i < N; i++)
+  {
+    if (bestvDist[i] < th)
+    {
       nInliers++;
       vbInliers[i] = true;
     }
@@ -482,8 +629,10 @@ Plane *ViewerAR::DetectPlane(const cv::Mat Tcw,
 
   vector<MapPoint *> vInlierMPs(nInliers, NULL);
   int nin = 0;
-  for (int i = 0; i < N; i++) {
-    if (vbInliers[i]) {
+  for (int i = 0; i < N; i++)
+  {
+    if (vbInliers[i])
+    {
       vInlierMPs[nin] = vPointMP[i];
       nin++;
     }
@@ -493,12 +642,14 @@ Plane *ViewerAR::DetectPlane(const cv::Mat Tcw,
 }
 
 Plane::Plane(const std::vector<MapPoint *> &vMPs, const cv::Mat &Tcw)
-    : mvMPs(vMPs), mTcw(Tcw.clone()) {
-  rang = -3.14f / 2 + ((float)rand() / RAND_MAX) * 3.14f;
+: mvMPs(vMPs), mTcw(Tcw.clone())
+{
+  rang = -3.14f / 2 + ((float) rand() / RAND_MAX) * 3.14f;
   Recompute();
 }
 
-void Plane::Recompute() {
+void Plane::Recompute()
+{
   const int N = mvMPs.size();
 
   // Recompute plane with all points
@@ -508,9 +659,11 @@ void Plane::Recompute() {
   o = cv::Mat::zeros(3, 1, CV_32F);
 
   int nPoints = 0;
-  for (int i = 0; i < N; i++) {
+  for (int i = 0; i < N; i++)
+  {
     MapPoint *pMP = mvMPs[i];
-    if (!pMP->isBad()) {
+    if (!pMP->isBad())
+    {
       cv::Mat Xw = pMP->GetWorldPos();
       o += Xw;
       A.row(nPoints).colRange(0, 3) = Xw.t();
@@ -530,13 +683,15 @@ void Plane::Recompute() {
   const float f = 1.0f / sqrt(a * a + b * b + c * c);
 
   // Compute XC just the first time
-  if (XC.empty()) {
+  if (XC.empty())
+  {
     cv::Mat Oc =
-        -mTcw.colRange(0, 3).rowRange(0, 3).t() * mTcw.rowRange(0, 3).col(3);
+      -mTcw.colRange(0, 3).rowRange(0, 3).t() * mTcw.rowRange(0, 3).col(3);
     XC = Oc - o;
   }
 
-  if ((XC.at<float>(0) * a + XC.at<float>(1) * b + XC.at<float>(2) * c) > 0) {
+  if ((XC.at<float>(0) * a + XC.at<float>(1) * b + XC.at<float>(2) * c) > 0)
+  {
     a = -a;
     b = -b;
     c = -c;
@@ -555,6 +710,7 @@ void Plane::Recompute() {
   const float ca = up.dot(n);
   const float ang = atan2(sa, ca);
   Tpw = cv::Mat::eye(4, 4, CV_32F);
+
 
   Tpw.rowRange(0, 3).colRange(0, 3) = ExpSO3(v * ang / sa) * ExpSO3(up * rang);
   o.copyTo(Tpw.col(3).rowRange(0, 3));
@@ -580,8 +736,14 @@ void Plane::Recompute() {
   glTpw.m[15] = 1.0;
 }
 
-Plane::Plane(const float &nx, const float &ny, const float &nz, const float &ox,
-             const float &oy, const float &oz) {
+Plane::Plane(
+  const float &nx,
+  const float &ny,
+  const float &nz,
+  const float &ox,
+  const float &oy,
+  const float &oz)
+{
   n = (cv::Mat_<float>(3, 1) << nx, ny, nz);
   o = (cv::Mat_<float>(3, 1) << ox, oy, oz);
 
@@ -592,7 +754,7 @@ Plane::Plane(const float &nx, const float &ny, const float &nz, const float &ox,
   const float c = up.dot(n);
   const float a = atan2(s, c);
   Tpw = cv::Mat::eye(4, 4, CV_32F);
-  const float rang = -3.14f / 2 + ((float)rand() / RAND_MAX) * 3.14f;
+  const float rang = -3.14f / 2 + ((float) rand() / RAND_MAX) * 3.14f;
   cout << rang;
   Tpw.rowRange(0, 3).colRange(0, 3) = ExpSO3(v * a / s) * ExpSO3(up * rang);
   o.copyTo(Tpw.col(3).rowRange(0, 3));
@@ -618,4 +780,4 @@ Plane::Plane(const float &nx, const float &ny, const float &nz, const float &ox,
   glTpw.m[15] = 1.0;
 }
 
-} // namespace ORB_SLAM2
+}  // namespace ORB_SLAM2

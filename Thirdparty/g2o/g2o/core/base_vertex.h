@@ -37,9 +37,10 @@
 #include <Eigen/StdVector>
 #include <stack>
 
-namespace g2o {
-
+namespace g2o
+{
 using namespace Eigen;
+
 
 /**
  * \brief Templatized BaseVertex
@@ -49,55 +50,68 @@ using namespace Eigen;
  * T  : internal type to represent the estimate, e.g., Quaternion for rotation
  * in 3D
  */
-template <int D, typename T>
-class BaseVertex : public OptimizableGraph::Vertex {
+template<int D, typename T>
+class BaseVertex : public OptimizableGraph::Vertex
+{
 public:
   typedef T EstimateType;
   typedef std::stack<
-      EstimateType,
-      std::vector<EstimateType, Eigen::aligned_allocator<EstimateType>>>
-      BackupStackType;
+    EstimateType,
+    std::vector<EstimateType, Eigen::aligned_allocator<EstimateType>>>
+    BackupStackType;
 
   static const int Dimension =
-      D; ///< dimension of the estimate (minimal) in the manifold space
+    D;  ///< dimension of the estimate (minimal) in the manifold space
 
-  typedef Eigen::Map<Matrix<double, D, D>,
-                     Matrix<double, D, D>::Flags & AlignedBit ? Aligned
-                                                              : Unaligned>
-      HessianBlockType;
+  typedef Eigen::Map<
+    Matrix<double, D, D>,
+    Matrix<double, D, D>::Flags & AlignedBit ? Aligned : Unaligned>
+    HessianBlockType;
 
 public:
   BaseVertex();
 
-  virtual const double &hessian(int i, int j) const {
+  virtual const double& hessian(int i, int j) const
+  {
     assert(i < D && j < D);
     return _hessian(i, j);
   }
-  virtual double &hessian(int i, int j) {
+  virtual double& hessian(int i, int j)
+  {
     assert(i < D && j < D);
     return _hessian(i, j);
   }
-  virtual double hessianDeterminant() const { return _hessian.determinant(); }
-  virtual double *hessianData() {
-    return const_cast<double *>(_hessian.data());
+  virtual double hessianDeterminant() const
+  {
+    return _hessian.determinant();
+  }
+  virtual double* hessianData()
+  {
+    return const_cast<double*>(_hessian.data());
   }
 
-  virtual void mapHessianMemory(double *d);
+  virtual void mapHessianMemory(double* d);
 
-  virtual int copyB(double *b_) const {
+  virtual int copyB(double* b_) const
+  {
     memcpy(b_, _b.data(), Dimension * sizeof(double));
     return Dimension;
   }
 
-  virtual const double &b(int i) const {
+  virtual const double& b(int i) const
+  {
     assert(i < D);
     return _b(i);
   }
-  virtual double &b(int i) {
+  virtual double& b(int i)
+  {
     assert(i < D);
     return _b(i);
   }
-  virtual double *bData() { return _b.data(); }
+  virtual double* bData()
+  {
+    return _b.data();
+  }
 
   virtual void clearQuadraticForm();
 
@@ -106,29 +120,53 @@ public:
   virtual double solveDirect(double lambda = 0);
 
   //! return right hand side b of the constructed linear system
-  Matrix<double, D, 1> &b() { return _b; }
-  const Matrix<double, D, 1> &b() const { return _b; }
+  Matrix<double, D, 1>& b()
+  {
+    return _b;
+  }
+  const Matrix<double, D, 1>& b() const
+  {
+    return _b;
+  }
   //! return the hessian block associated with the vertex
-  HessianBlockType &A() { return _hessian; }
-  const HessianBlockType &A() const { return _hessian; }
+  HessianBlockType& A()
+  {
+    return _hessian;
+  }
+  const HessianBlockType& A() const
+  {
+    return _hessian;
+  }
 
-  virtual void push() { _backup.push(_estimate); }
-  virtual void pop() {
+  virtual void push()
+  {
+    _backup.push(_estimate);
+  }
+  virtual void pop()
+  {
     assert(!_backup.empty());
     _estimate = _backup.top();
     _backup.pop();
     updateCache();
   }
-  virtual void discardTop() {
+  virtual void discardTop()
+  {
     assert(!_backup.empty());
     _backup.pop();
   }
-  virtual int stackSize() const { return _backup.size(); }
+  virtual int stackSize() const
+  {
+    return _backup.size();
+  }
 
   //! return the current estimate of the vertex
-  const EstimateType &estimate() const { return _estimate; }
+  const EstimateType& estimate() const
+  {
+    return _estimate;
+  }
   //! set the estimate for the vertex also calls updateCache()
-  void setEstimate(const EstimateType &et) {
+  void setEstimate(const EstimateType& et)
+  {
     _estimate = et;
     updateCache();
   }
@@ -145,6 +183,7 @@ public:
 
 #include "base_vertex.hpp"
 
-} // end namespace g2o
+}  // end namespace g2o
+
 
 #endif

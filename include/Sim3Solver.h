@@ -18,6 +18,7 @@
  * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #ifndef SIM3SOLVER_H
 #define SIM3SOLVER_H
 
@@ -26,25 +27,35 @@
 
 #include "KeyFrame.h"
 
-namespace ORB_SLAM2 {
 
-class Sim3Solver {
+namespace ORB_SLAM2
+{
+class Sim3Solver
+{
 public:
-  Sim3Solver(KeyFrame *pKF1, KeyFrame *pKF2,
-             const std::vector<MapPoint *> &vpMatched12,
-             const bool bFixScale = true);
+  Sim3Solver(
+    KeyFrame *pKF1,
+    KeyFrame *pKF2,
+    const std::vector<MapPoint *> &vpMatched12,
+    const bool bFixScale = true);
 
-  void SetRansacParameters(double probability = 0.99, int minInliers = 6,
-                           int maxIterations = 300);
+  void SetRansacParameters(
+    double probability = 0.99,
+    int minInliers = 6,
+    int maxIterations = 300);
 
   cv::Mat find(std::vector<bool> &vbInliers12, int &nInliers);
 
-  cv::Mat iterate(int nIterations, bool &bNoMore, std::vector<bool> &vbInliers,
-                  int &nInliers);
+  cv::Mat iterate(
+    int nIterations,
+    bool &bNoMore,
+    std::vector<bool> &vbInliers,
+    int &nInliers);
 
   cv::Mat GetEstimatedRotation();
   cv::Mat GetEstimatedTranslation();
   float GetEstimatedScale();
+
 
 protected:
   void ComputeCentroid(cv::Mat &P, cv::Mat &Pr, cv::Mat &C);
@@ -53,10 +64,16 @@ protected:
 
   void CheckInliers();
 
-  void Project(const std::vector<cv::Mat> &vP3Dw, std::vector<cv::Mat> &vP2D,
-               cv::Mat Tcw, cv::Mat K);
-  void FromCameraToImage(const std::vector<cv::Mat> &vP3Dc,
-                         std::vector<cv::Mat> &vP2D, cv::Mat K);
+  void Project(
+    const std::vector<cv::Mat> &vP3Dw,
+    std::vector<cv::Mat> &vP2D,
+    cv::Mat Tcw,
+    cv::Mat K);
+  void FromCameraToImage(
+    const std::vector<cv::Mat> &vP3Dc,
+    std::vector<cv::Mat> &vP2D,
+    cv::Mat K);
+
 
 protected:
   // KeyFrames and matches
@@ -123,6 +140,6 @@ protected:
   cv::Mat mK2;
 };
 
-} // namespace ORB_SLAM2
+}  // namespace ORB_SLAM2
 
-#endif // SIM3SOLVER_H
+#endif  // SIM3SOLVER_H

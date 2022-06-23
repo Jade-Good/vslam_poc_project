@@ -34,13 +34,14 @@
 #ifndef _WINDOWS
 #include <sys/time.h>
 #endif
-#define drand48() ((double)rand() / (double)RAND_MAX)
+#define drand48() ((double) rand() / (double) RAND_MAX)
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-int vasprintf(char **strp, const char *fmt, va_list ap);
+  int vasprintf(char** strp, const char* fmt, va_list ap);
 
 #ifdef __cplusplus
 }

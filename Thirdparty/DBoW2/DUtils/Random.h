@@ -15,10 +15,11 @@
 #include <cstdlib>
 #include <vector>
 
-namespace DUtils {
-
+namespace DUtils
+{
 /// Functions to generate pseudo-random numbers
-class Random {
+class Random
+{
 public:
   class UnrepeatedRandomizer;
 
@@ -51,7 +52,11 @@ public:
    * Returns a random number in the range [0..1]
    * @return random T number in [0..1]
    */
-  template <class T> static T RandomValue() { return (T)rand() / (T)RAND_MAX; }
+  template<class T>
+  static T RandomValue()
+  {
+    return (T) rand() / (T) RAND_MAX;
+  }
 
   /**
    * Returns a random number in the range [min..max]
@@ -59,7 +64,9 @@ public:
    * @param max
    * @return random T number in [min..max]
    */
-  template <class T> static T RandomValue(T min, T max) {
+  template<class T>
+  static T RandomValue(T min, T max)
+  {
     return Random::RandomValue<T>() * (max - min) + min;
   }
 
@@ -76,17 +83,20 @@ public:
    * @param mean
    * @param sigma standard deviation
    */
-  template <class T> static T RandomGaussianValue(T mean, T sigma) {
+  template<class T>
+  static T RandomGaussianValue(T mean, T sigma)
+  {
     // Box-Muller transformation
     T x1, x2, w, y1;
 
-    do {
-      x1 = (T)2. * RandomValue<T>() - (T)1.;
-      x2 = (T)2. * RandomValue<T>() - (T)1.;
+    do
+    {
+      x1 = (T) 2. * RandomValue<T>() - (T) 1.;
+      x2 = (T) 2. * RandomValue<T>() - (T) 1.;
       w = x1 * x1 + x2 * x2;
-    } while (w >= (T)1. || w == (T)0.);
+    } while (w >= (T) 1. || w == (T) 0.);
 
-    w = sqrt(((T)-2.0 * log(w)) / w);
+    w = sqrt(((T) -2.0 * log(w)) / w);
     y1 = x1 * w;
 
     return (mean + y1 * sigma);
@@ -100,7 +110,8 @@ private:
 // ---------------------------------------------------------------------------
 
 /// Provides pseudo-random numbers with no repetitions
-class Random::UnrepeatedRandomizer {
+class Random::UnrepeatedRandomizer
+{
 public:
   /**
    * Creates a randomizer that returns numbers in the range [min, max]
@@ -114,13 +125,13 @@ public:
    * Copies a randomizer
    * @param rnd
    */
-  UnrepeatedRandomizer(const UnrepeatedRandomizer &rnd);
+  UnrepeatedRandomizer(const UnrepeatedRandomizer& rnd);
 
   /**
    * Copies a randomizer
    * @param rnd
    */
-  UnrepeatedRandomizer &operator=(const UnrepeatedRandomizer &rnd);
+  UnrepeatedRandomizer& operator=(const UnrepeatedRandomizer& rnd);
 
   /**
    * Returns a random number not given before. If all the possible values
@@ -135,13 +146,19 @@ public:
    * is the same than after creating the randomizer
    * @return true iff all the values were returned
    */
-  inline bool empty() const { return m_values.empty(); }
+  inline bool empty() const
+  {
+    return m_values.empty();
+  }
 
   /**
    * Returns the number of values still to be returned
    * @return amount of values to return
    */
-  inline unsigned int left() const { return m_values.size(); }
+  inline unsigned int left() const
+  {
+    return m_values.size();
+  }
 
   /**
    * Resets the randomizer as it were just created
@@ -164,6 +181,6 @@ protected:
   std::vector<int> m_values;
 };
 
-} // namespace DUtils
+}  // namespace DUtils
 
 #endif

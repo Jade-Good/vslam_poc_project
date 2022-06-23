@@ -18,6 +18,7 @@
  * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include <algorithm>
 #include <chrono>
 #include <fstream>
@@ -27,17 +28,18 @@
 
 #include <System.h>
 
-#include <unistd.h>
-
 using namespace std;
 
-void LoadImages(const string &strAssociationFilename,
-                vector<string> &vstrImageFilenamesRGB,
-                vector<string> &vstrImageFilenamesD,
-                vector<double> &vTimestamps);
+void LoadImages(
+  const string &strAssociationFilename,
+  vector<string> &vstrImageFilenamesRGB,
+  vector<string> &vstrImageFilenamesD,
+  vector<double> &vTimestamps);
 
-int main(int argc, char **argv) {
-  if (argc != 5) {
+int main(int argc, char **argv)
+{
+  if (argc != 5)
+  {
     cerr << endl
          << "Usage: ./rgbd_tum path_to_vocabulary path_to_settings "
             "path_to_sequence path_to_association"
@@ -50,15 +52,21 @@ int main(int argc, char **argv) {
   vector<string> vstrImageFilenamesD;
   vector<double> vTimestamps;
   string strAssociationFilename = string(argv[4]);
-  LoadImages(strAssociationFilename, vstrImageFilenamesRGB, vstrImageFilenamesD,
-             vTimestamps);
+  LoadImages(
+    strAssociationFilename,
+    vstrImageFilenamesRGB,
+    vstrImageFilenamesD,
+    vTimestamps);
 
   // Check consistency in the number of images and depthmaps
   int nImages = vstrImageFilenamesRGB.size();
-  if (vstrImageFilenamesRGB.empty()) {
+  if (vstrImageFilenamesRGB.empty())
+  {
     cerr << endl << "No images found in provided path." << endl;
     return 1;
-  } else if (vstrImageFilenamesD.size() != vstrImageFilenamesRGB.size()) {
+  }
+  else if (vstrImageFilenamesD.size() != vstrImageFilenamesRGB.size())
+  {
     cerr << endl << "Different number of images for rgb and depth." << endl;
     return 1;
   }
@@ -77,15 +85,18 @@ int main(int argc, char **argv) {
 
   // Main loop
   cv::Mat imRGB, imD;
-  for (int ni = 0; ni < nImages; ni++) {
+  for (int ni = 0; ni < nImages; ni++)
+  {
     // Read image and depthmap from file
-    imRGB = cv::imread(string(argv[3]) + "/" + vstrImageFilenamesRGB[ni],
-                       CV_LOAD_IMAGE_UNCHANGED);
-    imD = cv::imread(string(argv[3]) + "/" + vstrImageFilenamesD[ni],
-                     CV_LOAD_IMAGE_UNCHANGED);
+    imRGB = cv::imread(
+      string(argv[3]) + "/" + vstrImageFilenamesRGB[ni],
+      CV_LOAD_IMAGE_UNCHANGED);
+    imD = cv::imread(
+      string(argv[3]) + "/" + vstrImageFilenamesD[ni], CV_LOAD_IMAGE_UNCHANGED);
     double tframe = vTimestamps[ni];
 
-    if (imRGB.empty()) {
+    if (imRGB.empty())
+    {
       cerr << endl
            << "Failed to load image at: " << string(argv[3]) << "/"
            << vstrImageFilenamesRGB[ni] << endl;
@@ -96,7 +107,7 @@ int main(int argc, char **argv) {
     std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
 #else
     std::chrono::monotonic_clock::time_point t1 =
-        std::chrono::monotonic_clock::now();
+      std::chrono::monotonic_clock::now();
 #endif
 
     // Pass the image to the SLAM system
@@ -106,12 +117,12 @@ int main(int argc, char **argv) {
     std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
 #else
     std::chrono::monotonic_clock::time_point t2 =
-        std::chrono::monotonic_clock::now();
+      std::chrono::monotonic_clock::now();
 #endif
 
     double ttrack =
-        std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1)
-            .count();
+      std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1)
+        .count();
 
     vTimesTrack[ni] = ttrack;
 
@@ -132,7 +143,8 @@ int main(int argc, char **argv) {
   // Tracking time statistics
   sort(vTimesTrack.begin(), vTimesTrack.end());
   float totaltime = 0;
-  for (int ni = 0; ni < nImages; ni++) {
+  for (int ni = 0; ni < nImages; ni++)
+  {
     totaltime += vTimesTrack[ni];
   }
   cout << "-------" << endl << endl;
@@ -146,16 +158,20 @@ int main(int argc, char **argv) {
   return 0;
 }
 
-void LoadImages(const string &strAssociationFilename,
-                vector<string> &vstrImageFilenamesRGB,
-                vector<string> &vstrImageFilenamesD,
-                vector<double> &vTimestamps) {
+void LoadImages(
+  const string &strAssociationFilename,
+  vector<string> &vstrImageFilenamesRGB,
+  vector<string> &vstrImageFilenamesD,
+  vector<double> &vTimestamps)
+{
   ifstream fAssociation;
   fAssociation.open(strAssociationFilename.c_str());
-  while (!fAssociation.eof()) {
+  while (!fAssociation.eof())
+  {
     string s;
     getline(fAssociation, s);
-    if (!s.empty()) {
+    if (!s.empty())
+    {
       stringstream ss;
       ss << s;
       double t;

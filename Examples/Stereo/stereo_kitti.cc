@@ -18,6 +18,7 @@
  * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include <algorithm>
 #include <chrono>
 #include <fstream>
@@ -28,15 +29,18 @@
 
 #include <System.h>
 
-#include <unistd.h>
-
 using namespace std;
 
-void LoadImages(const string &strPathToSequence, vector<string> &vstrImageLeft,
-                vector<string> &vstrImageRight, vector<double> &vTimestamps);
+void LoadImages(
+  const string &strPathToSequence,
+  vector<string> &vstrImageLeft,
+  vector<string> &vstrImageRight,
+  vector<double> &vTimestamps);
 
-int main(int argc, char **argv) {
-  if (argc != 4) {
+int main(int argc, char **argv)
+{
+  if (argc != 4)
+  {
     cerr << endl
          << "Usage: ./stereo_kitti path_to_vocabulary path_to_settings "
             "path_to_sequence"
@@ -66,13 +70,15 @@ int main(int argc, char **argv) {
 
   // Main loop
   cv::Mat imLeft, imRight;
-  for (int ni = 0; ni < nImages; ni++) {
+  for (int ni = 0; ni < nImages; ni++)
+  {
     // Read left and right images from file
     imLeft = cv::imread(vstrImageLeft[ni], CV_LOAD_IMAGE_UNCHANGED);
     imRight = cv::imread(vstrImageRight[ni], CV_LOAD_IMAGE_UNCHANGED);
     double tframe = vTimestamps[ni];
 
-    if (imLeft.empty()) {
+    if (imLeft.empty())
+    {
       cerr << endl
            << "Failed to load image at: " << string(vstrImageLeft[ni]) << endl;
       return 1;
@@ -82,7 +88,7 @@ int main(int argc, char **argv) {
     std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
 #else
     std::chrono::monotonic_clock::time_point t1 =
-        std::chrono::monotonic_clock::now();
+      std::chrono::monotonic_clock::now();
 #endif
 
     // Pass the images to the SLAM system
@@ -92,12 +98,12 @@ int main(int argc, char **argv) {
     std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
 #else
     std::chrono::monotonic_clock::time_point t2 =
-        std::chrono::monotonic_clock::now();
+      std::chrono::monotonic_clock::now();
 #endif
 
     double ttrack =
-        std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1)
-            .count();
+      std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1)
+        .count();
 
     vTimesTrack[ni] = ttrack;
 
@@ -118,7 +124,8 @@ int main(int argc, char **argv) {
   // Tracking time statistics
   sort(vTimesTrack.begin(), vTimesTrack.end());
   float totaltime = 0;
-  for (int ni = 0; ni < nImages; ni++) {
+  for (int ni = 0; ni < nImages; ni++)
+  {
     totaltime += vTimesTrack[ni];
   }
   cout << "-------" << endl << endl;
@@ -131,15 +138,21 @@ int main(int argc, char **argv) {
   return 0;
 }
 
-void LoadImages(const string &strPathToSequence, vector<string> &vstrImageLeft,
-                vector<string> &vstrImageRight, vector<double> &vTimestamps) {
+void LoadImages(
+  const string &strPathToSequence,
+  vector<string> &vstrImageLeft,
+  vector<string> &vstrImageRight,
+  vector<double> &vTimestamps)
+{
   ifstream fTimes;
   string strPathTimeFile = strPathToSequence + "/times.txt";
   fTimes.open(strPathTimeFile.c_str());
-  while (!fTimes.eof()) {
+  while (!fTimes.eof())
+  {
     string s;
     getline(fTimes, s);
-    if (!s.empty()) {
+    if (!s.empty())
+    {
       stringstream ss;
       ss << s;
       double t;
@@ -155,7 +168,8 @@ void LoadImages(const string &strPathToSequence, vector<string> &vstrImageLeft,
   vstrImageLeft.resize(nTimes);
   vstrImageRight.resize(nTimes);
 
-  for (int i = 0; i < nTimes; i++) {
+  for (int i = 0; i < nTimes; i++)
+  {
     stringstream ss;
     ss << setfill('0') << setw(6) << i;
     vstrImageLeft[i] = strPrefixLeft + ss.str() + ".png";

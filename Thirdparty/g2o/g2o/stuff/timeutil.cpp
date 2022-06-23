@@ -36,8 +36,8 @@
 #include <unistd.h>
 #endif
 
-namespace g2o {
-
+namespace g2o
+{
 #ifdef _WINDOWS
 #if defined(_MSC_VER) || defined(_MSC_EXTENSIONS)
 #define DELTA_EPOCH_IN_MICROSECS 11644473600000000Ui64
@@ -45,12 +45,14 @@ namespace g2o {
 #define DELTA_EPOCH_IN_MICROSECS 11644473600000000ULL
 #endif
 
-struct timezone {
+struct timezone
+{
   int tz_minuteswest; /* minutes W of Greenwich */
-  int tz_dsttime;     /* type of dst correction */
+  int tz_dsttime; /* type of dst correction */
 };
 
-int gettimeofday(struct timeval *tv, struct timezone *tz) {
+int gettimeofday(struct timeval *tv, struct timezone *tz)
+{
   // Define a structure to receive the current Windows filetime
   FILETIME ft;
 
@@ -58,7 +60,8 @@ int gettimeofday(struct timeval *tv, struct timezone *tz) {
   unsigned __int64 tmpres = 0;
   static int tzflag = 0;
 
-  if (NULL != tv) {
+  if (NULL != tv)
+  {
     GetSystemTimeAsFileTime(&ft);
 
     // The GetSystemTimeAsFileTime returns the number of 100 nanosecond
@@ -77,12 +80,14 @@ int gettimeofday(struct timeval *tv, struct timezone *tz) {
 
     // Finally change microseconds to seconds and place in the seconds value.
     // The modulus picks up the microseconds.
-    tv->tv_sec = (long)(tmpres / 1000000UL);
-    tv->tv_usec = (long)(tmpres % 1000000UL);
+    tv->tv_sec = (long) (tmpres / 1000000UL);
+    tv->tv_usec = (long) (tmpres % 1000000UL);
   }
 
-  if (NULL != tz) {
-    if (!tzflag) {
+  if (NULL != tz)
+  {
+    if (!tzflag)
+    {
       _tzset();
       tzflag++;
     }
@@ -102,16 +107,21 @@ int gettimeofday(struct timeval *tv, struct timezone *tz) {
 #endif
 
 ScopeTime::ScopeTime(const char *title)
-    : _title(title), _startTime(get_monotonic_time()) {}
+: _title(title), _startTime(get_monotonic_time())
+{
+}
 
-ScopeTime::~ScopeTime() {
+ScopeTime::~ScopeTime()
+{
   std::cerr << _title << " took " << 1000 * (get_monotonic_time() - _startTime)
             << "ms.\n";
 }
 
-double get_monotonic_time() {
-#if (defined(_POSIX_TIMERS) && (_POSIX_TIMERS + 0 >= 0) &&                     \
-     defined(_POSIX_MONOTONIC_CLOCK))
+double get_monotonic_time()
+{
+#if (                                                   \
+  defined(_POSIX_TIMERS) && (_POSIX_TIMERS + 0 >= 0) && \
+  defined(_POSIX_MONOTONIC_CLOCK))
   struct timespec ts;
   clock_gettime(CLOCK_MONOTONIC, &ts);
   return ts.tv_sec + ts.tv_nsec * 1e-9;
@@ -120,4 +130,4 @@ double get_monotonic_time() {
 #endif
 }
 
-} // namespace g2o
+}  // namespace g2o

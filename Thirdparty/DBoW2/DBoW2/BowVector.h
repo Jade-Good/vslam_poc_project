@@ -14,8 +14,8 @@
 #include <map>
 #include <vector>
 
-namespace DBoW2 {
-
+namespace DBoW2
+{
 /// Id of words
 typedef unsigned int WordId;
 
@@ -26,13 +26,24 @@ typedef double WordValue;
 typedef unsigned int NodeId;
 
 /// L-norms for normalization
-enum LNorm { L1, L2 };
+enum LNorm
+{
+  L1,
+  L2
+};
 
 /// Weighting type
-enum WeightingType { TF_IDF, TF, IDF, BINARY };
+enum WeightingType
+{
+  TF_IDF,
+  TF,
+  IDF,
+  BINARY
+};
 
 /// Scoring type
-enum ScoringType {
+enum ScoringType
+{
   L1_NORM,
   L2_NORM,
   CHI_SQUARE,
@@ -42,7 +53,8 @@ enum ScoringType {
 };
 
 /// Vector of words to represent images
-class BowVector : public std::map<WordId, WordValue> {
+class BowVector : public std::map<WordId, WordValue>
+{
 public:
   /**
    * Constructor
@@ -90,6 +102,6 @@ public:
   void saveM(const std::string &filename, size_t W) const;
 };
 
-} // namespace DBoW2
+}  // namespace DBoW2
 
 #endif

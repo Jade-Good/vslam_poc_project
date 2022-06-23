@@ -10,15 +10,16 @@
 #ifndef __D_T_FEATURE_VECTOR__
 #define __D_T_FEATURE_VECTOR__
 
-#include "BowVector.h"
 #include <iostream>
 #include <map>
 #include <vector>
+#include "BowVector.h"
 
-namespace DBoW2 {
-
+namespace DBoW2
+{
 /// Vector of nodes with indexes of local features
-class FeatureVector : public std::map<NodeId, std::vector<unsigned int>> {
+class FeatureVector : public std::map<NodeId, std::vector<unsigned int>>
+{
 public:
   /**
    * Constructor
@@ -46,6 +47,6 @@ public:
   friend std::ostream &operator<<(std::ostream &out, const FeatureVector &v);
 };
 
-} // namespace DBoW2
+}  // namespace DBoW2
 
 #endif

@@ -2,11 +2,14 @@ name: clang-format
 on:
   push:
     branches:
-      - main
+      - master
       - develop
       - feature/CI
   pull_request:
-    branches: [ develop ]
+    branches:
+      - master
+      - develop
+      - feature/CI
   workflow_dispatch:
 
 jobs:
@@ -19,6 +22,9 @@ jobs:
 
       - name: Run clang-format check script
         run: |
+          echo "=== give permission to py file ==="
+          pwd
+          chmod +x ./run-clang-format.py
           echo "=== clang-format check start ==="
-          ./run-clang-format.py --style file -r modules
+          ./run-clang-format.py -r ../vslam_poc_project
           echo "=== clang-format check finished ==="

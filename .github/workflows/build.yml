@@ -3,11 +3,14 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - main
+      - master
       - develop
       - feature/CI
   pull_request:
-    branches: [ develop ]
+    branches:
+      - master
+      - develop
+      - feature/CI
 env:
   GET_REPO: export REPO=${GITHUB_REPOSITORY#*/}
   GET_HASH: export HASH=${GITHUB_SHA}
@@ -34,7 +37,7 @@ jobs:
         if: failure()
         run: |
           echo "=== Clean up start ==="
-          echo rkdtnals423! | sudo -S echo ""
+          echo rkdtnals423 | sudo -S echo ""
           sudo docker rmi -f $(sudo docker images -f "dangling=true" -q)
           sudo docker images
           echo "=== Clean up finished ==="

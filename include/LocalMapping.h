@@ -29,24 +29,26 @@
 
 #include <mutex>
 
-namespace ORB_SLAM2 {
 
+namespace ORB_SLAM2
+{
 class Tracking;
 class LoopClosing;
 class Map;
 
-class LocalMapping {
+class LocalMapping
+{
 public:
-  LocalMapping(Map *pMap, const float bMonocular);
+  LocalMapping(Map* pMap, const float bMonocular);
 
-  void SetLoopCloser(LoopClosing *pLoopCloser);
+  void SetLoopCloser(LoopClosing* pLoopCloser);
 
-  void SetTracker(Tracking *pTracker);
+  void SetTracker(Tracking* pTracker);
 
   // Main function
   void Run();
 
-  void InsertKeyFrame(KeyFrame *pKF);
+  void InsertKeyFrame(KeyFrame* pKF);
 
   // Thread Synch
   void RequestStop();
@@ -64,7 +66,8 @@ public:
   void RequestFinish();
   bool isFinished();
 
-  int KeyframesInQueue() {
+  int KeyframesInQueue()
+  {
     unique_lock<std::mutex> lock(mMutexNewKFs);
     return mlNewKeyFrames.size();
   }
@@ -79,9 +82,9 @@ protected:
 
   void KeyFrameCulling();
 
-  cv::Mat ComputeF12(KeyFrame *&pKF1, KeyFrame *&pKF2);
+  cv::Mat ComputeF12(KeyFrame*& pKF1, KeyFrame*& pKF2);
 
-  cv::Mat SkewSymmetricMatrix(const cv::Mat &v);
+  cv::Mat SkewSymmetricMatrix(const cv::Mat& v);
 
   bool mbMonocular;
 
@@ -95,16 +98,16 @@ protected:
   bool mbFinished;
   std::mutex mMutexFinish;
 
-  Map *mpMap;
+  Map* mpMap;
 
-  LoopClosing *mpLoopCloser;
-  Tracking *mpTracker;
+  LoopClosing* mpLoopCloser;
+  Tracking* mpTracker;
 
-  std::list<KeyFrame *> mlNewKeyFrames;
+  std::list<KeyFrame*> mlNewKeyFrames;
 
-  KeyFrame *mpCurrentKeyFrame;
+  KeyFrame* mpCurrentKeyFrame;
 
-  std::list<MapPoint *> mlpRecentAddedMapPoints;
+  std::list<MapPoint*> mlpRecentAddedMapPoints;
 
   std::mutex mMutexNewKFs;
 
@@ -119,6 +122,6 @@ protected:
   std::mutex mMutexAccept;
 };
 
-} // namespace ORB_SLAM2
+}  // namespace ORB_SLAM2
 
-#endif // LOCALMAPPING_H
+#endif  // LOCALMAPPING_H

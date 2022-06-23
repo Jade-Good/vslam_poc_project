@@ -35,23 +35,25 @@
 #include "base_edge.h"
 #include "robust_kernel.h"
 
-namespace g2o {
-
+namespace g2o
+{
 using namespace Eigen;
 
-template <int D, typename E, typename VertexXi>
-class BaseUnaryEdge : public BaseEdge<D, E> {
+template<int D, typename E, typename VertexXi>
+class BaseUnaryEdge : public BaseEdge<D, E>
+{
 public:
   static const int Dimension = BaseEdge<D, E>::Dimension;
   typedef typename BaseEdge<D, E>::Measurement Measurement;
   typedef VertexXi VertexXiType;
   typedef typename Matrix<double, D, VertexXiType::Dimension>::AlignedMapType
-      JacobianXiOplusType;
+    JacobianXiOplusType;
   typedef typename BaseEdge<D, E>::ErrorVector ErrorVector;
   typedef typename BaseEdge<D, E>::InformationType InformationType;
 
   BaseUnaryEdge()
-      : BaseEdge<D, E>(), _jacobianOplusXi(0, D, VertexXiType::Dimension) {
+  : BaseEdge<D, E>(), _jacobianOplusXi(0, D, VertexXiType::Dimension)
+  {
     _vertices.resize(1);
   }
 
@@ -59,7 +61,7 @@ public:
 
   virtual bool allVerticesFixed() const;
 
-  virtual void linearizeOplus(JacobianWorkspace &jacobianWorkspace);
+  virtual void linearizeOplus(JacobianWorkspace& jacobianWorkspace);
 
   /**
    * Linearizes the oplus operator in the vertex, and stores
@@ -69,16 +71,19 @@ public:
 
   //! returns the result of the linearization in the manifold space for the node
   //! xi
-  const JacobianXiOplusType &jacobianOplusXi() const {
+  const JacobianXiOplusType& jacobianOplusXi() const
+  {
     return _jacobianOplusXi;
   }
 
   virtual void constructQuadraticForm();
 
-  virtual void initialEstimate(const OptimizableGraph::VertexSet &from,
-                               OptimizableGraph::Vertex *to);
+  virtual void initialEstimate(
+    const OptimizableGraph::VertexSet& from,
+    OptimizableGraph::Vertex* to);
 
-  virtual void mapHessianMemory(double *, int, int, bool) {
+  virtual void mapHessianMemory(double*, int, int, bool)
+  {
     assert(0 && "BaseUnaryEdge does not map memory of the Hessian");
   }
 
@@ -100,6 +105,6 @@ public:
 
 #include "base_unary_edge.hpp"
 
-} // end namespace g2o
+}  // end namespace g2o
 
 #endif

@@ -41,11 +41,12 @@
 #include <wordexp.h>
 #endif
 
-namespace g2o {
-
+namespace g2o
+{
 using namespace std;
 
-std::string trim(const std::string &s) {
+std::string trim(const std::string& s)
+{
   if (s.length() == 0)
     return s;
   string::size_type b = s.find_first_not_of(" \t\n");
@@ -55,7 +56,8 @@ std::string trim(const std::string &s) {
   return std::string(s, b, e - b + 1);
 }
 
-std::string trimLeft(const std::string &s) {
+std::string trimLeft(const std::string& s)
+{
   if (s.length() == 0)
     return s;
   string::size_type b = s.find_first_not_of(" \t\n");
@@ -65,7 +67,8 @@ std::string trimLeft(const std::string &s) {
   return std::string(s, b, e - b + 1);
 }
 
-std::string trimRight(const std::string &s) {
+std::string trimRight(const std::string& s)
+{
   if (s.length() == 0)
     return s;
   string::size_type b = 0;
@@ -75,22 +78,25 @@ std::string trimRight(const std::string &s) {
   return std::string(s, b, e - b + 1);
 }
 
-std::string strToLower(const std::string &s) {
+std::string strToLower(const std::string& s)
+{
   string ret;
-  std::transform(s.begin(), s.end(), back_inserter(ret),
-                 (int (*)(int))std::tolower);
+  std::transform(
+    s.begin(), s.end(), back_inserter(ret), (int (*)(int)) std::tolower);
   return ret;
 }
 
-std::string strToUpper(const std::string &s) {
+std::string strToUpper(const std::string& s)
+{
   string ret;
-  std::transform(s.begin(), s.end(), back_inserter(ret),
-                 (int (*)(int))std::toupper);
+  std::transform(
+    s.begin(), s.end(), back_inserter(ret), (int (*)(int)) std::toupper);
   return ret;
 }
 
-std::string formatString(const char *fmt, ...) {
-  char *auxPtr = NULL;
+std::string formatString(const char* fmt, ...)
+{
+  char* auxPtr = NULL;
   va_list arg_list;
   va_start(arg_list, fmt);
   int numChar = vasprintf(&auxPtr, fmt, arg_list);
@@ -98,15 +104,17 @@ std::string formatString(const char *fmt, ...) {
   string retString;
   if (numChar != -1)
     retString = auxPtr;
-  else {
+  else
+  {
     cerr << __PRETTY_FUNCTION__ << ": Error while allocating memory" << endl;
   }
   free(auxPtr);
   return retString;
 }
 
-int strPrintf(std::string &str, const char *fmt, ...) {
-  char *auxPtr = NULL;
+int strPrintf(std::string& str, const char* fmt, ...)
+{
+  char* auxPtr = NULL;
   va_list arg_list;
   va_start(arg_list, fmt);
   int numChars = vasprintf(&auxPtr, fmt, arg_list);
@@ -116,32 +124,37 @@ int strPrintf(std::string &str, const char *fmt, ...) {
   return numChars;
 }
 
-std::string strExpandFilename(const std::string &filename) {
+std::string strExpandFilename(const std::string& filename)
+{
 #if (defined(UNIX) || defined(CYGWIN)) && !defined(ANDROID)
   string result = filename;
   wordexp_t p;
 
   wordexp(filename.c_str(), &p, 0);
-  if (p.we_wordc > 0) {
+  if (p.we_wordc > 0)
+  {
     result = p.we_wordv[0];
   }
   wordfree(&p);
   return result;
 #else
-  (void)filename;
+  (void) filename;
   std::cerr << "WARNING: " << __PRETTY_FUNCTION__ << " not implemented"
             << std::endl;
   return std::string();
 #endif
 }
 
-std::vector<std::string> strSplit(const std::string &str,
-                                  const std::string &delimiters) {
+std::vector<std::string> strSplit(
+  const std::string& str,
+  const std::string& delimiters)
+{
   std::vector<std::string> tokens;
   string::size_type lastPos = 0;
   string::size_type pos = 0;
 
-  do {
+  do
+  {
     pos = str.find_first_of(delimiters, lastPos);
     tokens.push_back(str.substr(lastPos, pos - lastPos));
     lastPos = pos + 1;
@@ -150,28 +163,31 @@ std::vector<std::string> strSplit(const std::string &str,
   return tokens;
 }
 
-bool strStartsWith(const std::string &s, const std::string &start) {
+bool strStartsWith(const std::string& s, const std::string& start)
+{
   if (s.size() < start.size())
     return false;
   return equal(start.begin(), start.end(), s.begin());
 }
 
-bool strEndsWith(const std::string &s, const std::string &end) {
+bool strEndsWith(const std::string& s, const std::string& end)
+{
   if (s.size() < end.size())
     return false;
   return equal(end.rbegin(), end.rend(), s.rbegin());
 }
 
-int readLine(std::istream &is, std::stringstream &currentLine) {
+int readLine(std::istream& is, std::stringstream& currentLine)
+{
   if (is.eof())
     return -1;
   currentLine.str("");
   currentLine.clear();
   is.get(*currentLine.rdbuf());
-  if (is.fail()) // fail is set on empty lines
+  if (is.fail())  // fail is set on empty lines
     is.clear();
-  G2O_FSKIP_LINE(is); // read \n not read by get()
+  G2O_FSKIP_LINE(is);  // read \n not read by get()
   return static_cast<int>(currentLine.str().size());
 }
 
-} // namespace g2o
+}  // namespace g2o

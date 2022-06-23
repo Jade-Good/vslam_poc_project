@@ -30,12 +30,14 @@
 
 #include <mutex>
 
-namespace ORB_SLAM2 {
 
+namespace ORB_SLAM2
+{
 class Tracking;
 class Viewer;
 
-class FrameDrawer {
+class FrameDrawer
+{
 public:
   FrameDrawer(Map *pMap);
 
@@ -64,6 +66,6 @@ protected:
   std::mutex mMutex;
 };
 
-} // namespace ORB_SLAM2
+}  // namespace ORB_SLAM2
 
-#endif // FRAMEDRAWER_H
+#endif  // FRAMEDRAWER_H

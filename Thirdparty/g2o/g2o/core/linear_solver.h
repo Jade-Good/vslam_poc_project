@@ -29,8 +29,8 @@
 #include "sparse_block_matrix.h"
 #include "sparse_block_matrix_ccs.h"
 
-namespace g2o {
-
+namespace g2o
+{
 /**
  * \brief basic solver for Ax = b
  *
@@ -38,9 +38,11 @@ namespace g2o {
  * algebra libraries. A is assumed to be symmetric (only upper triangular block
  * is stored) and positive-semi-definit.
  */
-template <typename MatrixType> class LinearSolver {
+template<typename MatrixType>
+class LinearSolver
+{
 public:
-  LinearSolver(){};
+  LinearSolver() {};
   virtual ~LinearSolver() {}
 
   /**
@@ -55,59 +57,71 @@ public:
    * If the matrix changes call init() before.
    * solve system Ax = b, x and b have to allocated beforehand!!
    */
-  virtual bool solve(const SparseBlockMatrix<MatrixType> &A, double *x,
-                     double *b) = 0;
+  virtual bool
+  solve(const SparseBlockMatrix<MatrixType>& A, double* x, double* b) = 0;
 
   /**
    * Inverts the diagonal blocks of A
    * @returns false if not defined.
    */
-  virtual bool solveBlocks(double **&blocks,
-                           const SparseBlockMatrix<MatrixType> &A) {
-    (void)blocks;
-    (void)A;
+  virtual bool solveBlocks(
+    double**& blocks,
+    const SparseBlockMatrix<MatrixType>& A)
+  {
+    (void) blocks;
+    (void) A;
     return false;
   }
+
 
   /**
    * Inverts the a block pattern of A in spinv
    * @returns false if not defined.
    */
-  virtual bool
-  solvePattern(SparseBlockMatrix<MatrixXd> &spinv,
-               const std::vector<std::pair<int, int>> &blockIndices,
-               const SparseBlockMatrix<MatrixType> &A) {
-    (void)spinv;
-    (void)blockIndices;
-    (void)A;
+  virtual bool solvePattern(
+    SparseBlockMatrix<MatrixXd>& spinv,
+    const std::vector<std::pair<int, int>>& blockIndices,
+    const SparseBlockMatrix<MatrixType>& A)
+  {
+    (void) spinv;
+    (void) blockIndices;
+    (void) A;
     return false;
   }
 
   //! write a debug dump of the system matrix if it is not PSD in solve
-  virtual bool writeDebug() const { return false; }
+  virtual bool writeDebug() const
+  {
+    return false;
+  }
   virtual void setWriteDebug(bool) {}
 };
 
 /**
  * \brief Solver with faster iterating structure for the linear matrix
  */
-template <typename MatrixType>
-class LinearSolverCCS : public LinearSolver<MatrixType> {
+template<typename MatrixType>
+class LinearSolverCCS : public LinearSolver<MatrixType>
+{
 public:
   LinearSolverCCS() : LinearSolver<MatrixType>(), _ccsMatrix(0) {}
-  ~LinearSolverCCS() { delete _ccsMatrix; }
+  ~LinearSolverCCS()
+  {
+    delete _ccsMatrix;
+  }
 
 protected:
-  SparseBlockMatrixCCS<MatrixType> *_ccsMatrix;
+  SparseBlockMatrixCCS<MatrixType>* _ccsMatrix;
 
-  void initMatrixStructure(const SparseBlockMatrix<MatrixType> &A) {
+  void initMatrixStructure(const SparseBlockMatrix<MatrixType>& A)
+  {
     delete _ccsMatrix;
-    _ccsMatrix = new SparseBlockMatrixCCS<MatrixType>(A.rowBlockIndices(),
-                                                      A.colBlockIndices());
+    _ccsMatrix = new SparseBlockMatrixCCS<MatrixType>(
+      A.rowBlockIndices(), A.colBlockIndices());
     A.fillSparseBlockMatrixCCS(*_ccsMatrix);
   }
 };
 
-} // namespace g2o
+}  // namespace g2o
 
 #endif

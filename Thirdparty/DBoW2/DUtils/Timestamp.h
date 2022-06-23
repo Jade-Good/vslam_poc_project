@@ -13,13 +13,19 @@
 #include <iostream>
 using namespace std;
 
-namespace DUtils {
-
+namespace DUtils
+{
 /// Timestamp
-class Timestamp {
+class Timestamp
+{
 public:
   /// Options to initiate a timestamp
-  enum tOptions { NONE = 0, CURRENT_TIME = 0x1, ZERO = 0x2 };
+  enum tOptions
+  {
+    NONE = 0,
+    CURRENT_TIME = 0x1,
+    ZERO = 0x2
+  };
 
 public:
   /**
@@ -50,7 +56,8 @@ public:
    * @param secs: seconds
    * @param usecs: microseconds
    */
-  inline void setTime(unsigned long secs, unsigned long usecs) {
+  inline void setTime(unsigned long secs, unsigned long usecs)
+  {
     m_secs = secs;
     m_usecs = usecs;
   }
@@ -60,7 +67,8 @@ public:
    * @param secs seconds
    * @param usecs microseconds
    */
-  inline void getTime(unsigned long &secs, unsigned long &usecs) const {
+  inline void getTime(unsigned long &secs, unsigned long &usecs) const
+  {
     secs = m_secs;
     usecs = m_usecs;
   }
@@ -182,13 +190,14 @@ public:
    */
   static string Format(double s);
 
+
 protected:
   /// Seconds
-  unsigned long m_secs; // seconds
+  unsigned long m_secs;  // seconds
   /// Microseconds
-  unsigned long m_usecs; // microseconds
+  unsigned long m_usecs;  // microseconds
 };
 
-} // namespace DUtils
+}  // namespace DUtils
 
 #endif

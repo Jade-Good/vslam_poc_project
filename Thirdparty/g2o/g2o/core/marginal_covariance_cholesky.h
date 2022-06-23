@@ -39,13 +39,15 @@
 #include <tr1/unordered_map>
 #endif
 
-namespace g2o {
 
+namespace g2o
+{
 /**
  * \brief computing the marginal covariance given a cholesky factor (lower
  * triangle of the factor)
  */
-class MarginalCovarianceCholesky {
+class MarginalCovarianceCholesky
+{
 protected:
   /**
    * hash struct for storing the matrix elements needed to compute the
@@ -61,16 +63,20 @@ public:
    * compute the marginal cov for the given block indices, write the result to
    * the covBlocks memory (which has to be provided by the caller).
    */
-  void computeCovariance(double **covBlocks,
-                         const std::vector<int> &blockIndices);
+  void computeCovariance(
+    double** covBlocks,
+    const std::vector<int>& blockIndices);
+
 
   /**
    * compute the marginal cov for the given block indices, write the result in
    * spinv).
    */
-  void computeCovariance(SparseBlockMatrix<MatrixXd> &spinv,
-                         const std::vector<int> &rowBlockIndices,
-                         const std::vector<std::pair<int, int>> &blockIndices);
+  void computeCovariance(
+    SparseBlockMatrix<MatrixXd>& spinv,
+    const std::vector<int>& rowBlockIndices,
+    const std::vector<std::pair<int, int>>& blockIndices);
+
 
   /**
    * set the CCS representation of the cholesky factor along with the inverse
@@ -81,22 +87,23 @@ public:
    * computeCovariance(). The pointers are owned by the caller,
    * MarginalCovarianceCholesky does not free the pointers.
    */
-  void setCholeskyFactor(int n, int *Lp, int *Li, double *Lx, int *permInv);
+  void setCholeskyFactor(int n, int* Lp, int* Li, double* Lx, int* permInv);
 
 protected:
   // information about the cholesky factor (lower triangle)
-  int _n;      ///< L is an n X n matrix
-  int *_Ap;    ///< column pointer of the CCS storage
-  int *_Ai;    ///< row indices of the CCS storage
-  double *_Ax; ///< values of the cholesky factor
-  int *_perm;  ///< permutation of the cholesky factor. Variable re-ordering for
+  int _n;  ///< L is an n X n matrix
+  int* _Ap;  ///< column pointer of the CCS storage
+  int* _Ai;  ///< row indices of the CCS storage
+  double* _Ax;  ///< values of the cholesky factor
+  int* _perm;  ///< permutation of the cholesky factor. Variable re-ordering for
                ///< better fill-in
 
-  LookupMap _map; ///< hash look up table for the already computed entries
-  std::vector<double> _diag; ///< cache 1 / H_ii to avoid recalculations
+  LookupMap _map;  ///< hash look up table for the already computed entries
+  std::vector<double> _diag;  ///< cache 1 / H_ii to avoid recalculations
 
   //! compute the index used for hashing
-  int computeIndex(int r, int c) const { /*assert(r <= c);*/
+  int computeIndex(int r, int c) const
+  { /*assert(r <= c);*/
     return r * _n + c;
   }
   /**
@@ -107,6 +114,6 @@ protected:
   double computeEntry(int r, int c);
 };
 
-} // namespace g2o
+}  // namespace g2o
 
 #endif
