@@ -1,4 +1,4 @@
-FROM kangsm423/orb2_u18.04:base
+FROM kangsm423/orb2_u18.04_2:base
 
 ARG BRANCH=feature/CI
 ARG DEBIAN_FRONTEND=noninteractive
