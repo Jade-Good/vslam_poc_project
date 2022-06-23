@@ -23,7 +23,8 @@ jobs:
       - name: Run clang-format check script
         run: |
           echo "=== give permission to py file ==="
+          pwd
           chmod +x ./run-clang-format.py
           echo "=== clang-format check start ==="
-          ./run-clang-format.py -r ../ORB_SLAM2
+          ./run-clang-format.py -r /ORB_SLAM2
           echo "=== clang-format check finished ==="
