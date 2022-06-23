@@ -26,5 +26,5 @@ jobs:
           pwd
           chmod +x ./run-clang-format.py
           echo "=== clang-format check start ==="
-          ./run-clang-format.py -r /ORB_SLAM2
+          ./run-clang-format.py -r ../vslam_poc_project
           echo "=== clang-format check finished ==="
