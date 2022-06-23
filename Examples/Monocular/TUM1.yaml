@@ -25,9 +25,12 @@ Camera.RGB: 1
 #--------------------------------------------------------------------------------------------
 # ORB Parameters
 #--------------------------------------------------------------------------------------------
-
+# ORB Extractor: Type of feature descriptor
+ORBextractor.destType: ORB
+# ORB Extractor: ORB threshold
+ORBextractor.minThORB: 18
 # ORB Extractor: Number of features per image
-ORBextractor.nFeatures: 1000
+ORBextractor.nFeatures: 2000
 
 # ORB Extractor: Scale factor between levels in the scale pyramid 	
 ORBextractor.scaleFactor: 1.2
