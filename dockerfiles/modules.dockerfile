@@ -1,4 +1,4 @@
-FROM SLAM_DUNK:base
+FROM kangsm423/orb2_u18.04:base
 
 ARG BRANCH=feature/CI
 ARG DEBIAN_FRONTEND=noninteractive
