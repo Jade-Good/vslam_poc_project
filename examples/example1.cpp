@@ -5,7 +5,7 @@
 //#include "module1/Class.hpp"
 //
 //
-//int main()
+// int main()
 //{
 //    EASY_PROFILER_ENABLE;
 //    spdlog::info("Spdlog is activated!");
@@ -25,17 +25,18 @@
 //
 // Created by wjh on 22. 6. 9.
 //
-#include "module1/Class.hpp"
 #include <stdio.h>
-#include <time.h>
 #include <stdlib.h>
+#include <time.h>
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
-#include <vector>
 #include <iostream>
+#include <vector>
+#include "module1/Class.hpp"
 
 //// Homework - Make a mat_mult function which is faster than this one!
-//void mat_mult(int m, int n, int k, const float* mat_a, const float* mat_b, float* mat_c)
+// void mat_mult(int m, int n, int k, const float* mat_a, const float* mat_b,
+// float* mat_c)
 //{
 //  /*
 //      Input:
@@ -58,14 +59,14 @@
 //  }
 //}
 //
-//void genmat(int n, int m, std::vector<float>& mat)
+// void genmat(int n, int m, std::vector<float>& mat)
 //{
 //  srand(time(0));
 //  mat.resize(n * m);
 //  for (int i=0; i < mat.size(); i++) mat[i] = rand() % 100;
 //}
 //
-//void dumpmat(int n, int m, std::vector<float>& mat)
+// void dumpmat(int n, int m, std::vector<float>& mat)
 //{
 //  for (int i=0; i<n; i++)
 //  {
@@ -75,7 +76,7 @@
 //  }
 //}
 //
-//int main(int argc, char** argv)
+// int main(int argc, char** argv)
 //{
 //
 //  std::vector<float> mat_a;
@@ -107,29 +108,28 @@ Eigen::Matrix<double, 4, 4> mat_a = Eigen::Matrix<double, 4, 4>::Random();
 Eigen::Matrix<double, 4, 4> mat_b = Eigen::Matrix<double, 4, 4>::Random();
 Eigen::Matrix<double, 4, 4> mat_c = Eigen::Matrix<double, 4, 4>::Random();
 
-void mat_mult(Eigen::Matrix<double, 4, 4> mat_a, Eigen::Matrix<double, 4, 4>  mat_b, Eigen::Matrix<double, 4, 4>  mat_c){
-   mat_c =  mat_a * mat_b;
-
+void mat_mult(
+  Eigen::Matrix<double, 4, 4> mat_a,
+  Eigen::Matrix<double, 4, 4> mat_b,
+  Eigen::Matrix<double, 4, 4> mat_c)
+{
+  mat_c = mat_a * mat_b;
 }
 
 int main()
 {
-
-
   const int iteration = 10000;
   EASY_PROFILER_ENABLE;
   EASY_BLOCK("Outer block", profiler::colors::Black);
-  for (int i=0; i<iteration; i++)
+  for (int i = 0; i < iteration; i++)
   {
     mat_mult(mat_a, mat_b, mat_c);
   }
   EASY_END_BLOCK
 
-  std::cout<< mat_a.transpose() << std::endl;
-  std::cout<< mat_b.transpose() << std::endl;
-  std::cout<< mat_c.transpose() << std::endl;
+  std::cout << mat_a.transpose() << std::endl;
+  std::cout << mat_b.transpose() << std::endl;
+  std::cout << mat_c.transpose() << std::endl;
   profiler::dumpBlocksToFile("../test_profile.prof");
   return 0;
 }
-
-
