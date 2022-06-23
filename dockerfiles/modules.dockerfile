@@ -8,7 +8,7 @@ RUN sudo apt-get update -y && sudo apt-get upgrade -y
 RUN useradd -m user && yes password | passwd user
 
 RUN echo "== Start Debug build == " && \
-cd home/vslam_poc_project && \
+cd vslam_poc_project && \
 git remote update && \
 git fetch --all && \
 git checkout ${BRANCH} && \
@@ -18,7 +18,7 @@ mkdir build_debug && cd build_debug && \
 cmake -DCMAKE_BUILD_TYPE=Debug -GNinja .. && ninja
 
 RUN echo "== Start Release build == " && \
-cd home/vslam_poc_project && \
+cd vslam_poc_project && \
 git remote update && \
 git fetch --all && \
 git checkout ${BRANCH} && \
