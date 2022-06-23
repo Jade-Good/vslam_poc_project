@@ -77,37 +77,34 @@ namespace ORB_SLAM2 {
         mvSets = vector<vector<size_t> >(mMaxIterations, vector<size_t>(8, 0));
         // mvSets : 200개 row, 1개의 col에 0으로 된 8개의 vector로 구성
 
+        // sort index(mvSets) for PROSAC using 2d-2d correspondence
+        if (RANSAC_method == "PROSAC")
+        {
+            vector<cv::Point2f> P1, P2;
+            cv::Mat T1, T2;
+            Normalize(mvKeys1, P1, T1); // mvKeys : keypoint
+            Normalize(mvKeys2, P2, T2); // T : intrinsic matrix
+            cv::Mat initial_H = computeHomo(P1, P2);
+            reprojection_H(initial_H, P1, P2, mvSets, mvMatches12, mvKeys1, mvKeys2);
 
-        // sort index for PROSAC using 2d-2d correspondence
-        vector<cv::Point2f> fP1, fP2;
-        cv::Mat fT1, fT2;
-        Normalize(mvKeys1, fP1, fT1); // mvKeys : keypoint
-        Normalize(mvKeys2, fP2, fT2); // T : intrinsic matrix
-        cv::Mat fT2inv = fT2.inv();
-        cv::Mat finitial_H = computeHomo(fP1, fP2);
-        reprojection_H(finitial_H, fP1, fP2, mvSets, mvMatches12, mvKeys1, mvKeys2);
+            std::cout << "\nPROSAC OK" << std::endl;
 
-        std::cout << "\nPROSAC OK" << std::endl;
+            DUtils::Random::SeedRandOnce(0);
 
+            for (int it = 0; it < mMaxIterations; it++) {
+                vAvailableIndices = vAllIndices;
 
-        DUtils::Random::SeedRandOnce(0);
+                // Select a minimum set
+                for (size_t j = 0; j < 8; j++) {
+                    // ransac
+                    int randi = DUtils::Random::RandomInt(0, vAvailableIndices.size() - 1);
+                    int idx = vAvailableIndices[randi];
 
-        for (int it = 0; it < mMaxIterations; it++) {
-            vAvailableIndices = vAllIndices;
+                    mvSets[it][j] = idx; // random의 index를 순서대로 mvSets에 저장
 
-            // Select a minimum set
-            for (size_t j = 0; j < 8; j++) {
-                // ransac
-                int randi = DUtils::Random::RandomInt(0, vAvailableIndices.size() - 1);
-
-                // lo-ransac
-
-                int idx = vAvailableIndices[randi];
-
-                mvSets[it][j] = idx; // random의 index를 순서대로 mvSets에 저장
-
-                vAvailableIndices[randi] = vAvailableIndices.back();
-                vAvailableIndices.pop_back();
+                    vAvailableIndices[randi] = vAvailableIndices.back();
+                    vAvailableIndices.pop_back();
+                }
             }
         }
 
@@ -116,7 +113,24 @@ namespace ORB_SLAM2 {
         float SH, SF;
         cv::Mat H, F;
 
-        thread threadH(&Initializer::FindHomography, this, ref(vbMatchesInliersH), ref(SH), ref(H));
+        thread threadH;
+        if (RANSAC_method == "lo-RANSAC")
+        {
+            clock_t start, end;
+            start = clock();
+            thread threadH(&Initializer::FindloRANSACHomo, this, ref(vbMatchesInliersH), ref(SH), ref(H));
+            end = clock();
+            std::cout << "Lo-RANSAC Find Homography time : " << (double)(end - start) / CLOCKS_PER_SEC;
+        }
+        else
+        {
+            clock_t start, end;
+            start = clock();
+            thread threadH(&Initializer::FindHomography, this, ref(vbMatchesInliersH), ref(SH), ref(H));
+            end = clock();
+            std::cout << "original Find Homography time : " << (double)(end - start) / CLOCKS_PER_SEC;
+        }
+
         thread threadF(&Initializer::FindFundamental, this, ref(vbMatchesInliersF), ref(SF), ref(F));
 
         // Wait until both threads have finished
@@ -136,7 +150,7 @@ namespace ORB_SLAM2 {
     }
 
     cv::Mat Initializer::computeHomo(vector<cv::Point2f> vP1, vector<cv::Point2f> vP2) {
-        int N = 500; // vP1.size(); // 4000개
+        int N = 100; // vP1.size(); // 4000개
         cv::Mat A(2 * N, 9, CV_32F);
 
         for (int i = 0; i < N; i++) {
@@ -293,7 +307,7 @@ namespace ORB_SLAM2 {
     }
 
 
-    void Initializer::loRANSAC(vector<bool> &vbMatchesInliers, float &score, cv::Mat &H21) {
+    void Initializer::FindloRANSACHomo(vector<bool> &vbMatchesInliers, float &score, cv::Mat &H21) {
         /*
         prior 정보를 활용하기 힘들 때, loRANSAC을 사용하는 것이 좋다.
         1. 무작위로 최소한의 데이터를 샘플링한다.
@@ -348,8 +362,6 @@ namespace ORB_SLAM2 {
                 // inner RANSAC
                 // 4.
                 // vbCurrentInliers를 활용 (true, false) - threshold를 넘지 않은 score만 true
-
-
                 vector<cv::Point2f> inliersSamples1, inliersSamples2;
                 vector<int> inliersINDEX;
 
@@ -371,15 +383,15 @@ namespace ORB_SLAM2 {
                 cv::Mat inliersT2inv = inliersT2.inv();
 
                 int inliersN = inliersSamples1.size();
-                vector<cv::Point2f> inliers1(inliersN);
-                vector<cv::Point2f> inliers2(inliersN);
+                vector<cv::Point2f> inliers1(8);
+                vector<cv::Point2f> inliers2(8);
                 cv::Mat inliersH21;
 
 
                 for (int initer=0; initer<innerIterations; ++initer)
                 {
                     // sampling
-                    for (auto s=0;s<inliersN;++s)
+                    for (auto s=0;s<8;++s)
                     {
                         int randi = DUtils::Random::RandomInt(0, inliersINDEX.size() - 1);
                         int inlieridx = inliersINDEX[randi];
@@ -395,7 +407,8 @@ namespace ORB_SLAM2 {
                     inliersH12 = inliersCurrentH21.inv();
 
                     vector<bool> inliersbools(N,false);
-                    float inliersCurrentScore = CheckHomography(inliersCurrentH21, inliersH12, vbCurrentInliers, mSigma);
+                    float inliersCurrentScore = CheckHomography(inliersCurrentH21, inliersH12, inliersbools, mSigma);
+
 
                     if (inliersCurrentScore > inliersScore)
                     {
@@ -409,7 +422,7 @@ namespace ORB_SLAM2 {
             else
                 n++;
 
-            if (n==10)
+            if (n==5 and score > 500)
             {
                 n=0;
                 std::cout << "\nearly stop - iteration : " << it << std::endl;
@@ -453,7 +466,7 @@ namespace ORB_SLAM2 {
 
 
         // Best Results variables
-        float thres = 800;
+        float thres = 500;
         score = 0.0;
         vbMatchesInliers = vector<bool>(N,false);
 
@@ -506,7 +519,7 @@ namespace ORB_SLAM2 {
             else
                 n++;
 
-            if (n>=50 and score > thres)
+            if (n>=5 and score > thres)
             {
                 n=0;
                 std::cout << "\nearly stop - iteration : " << it << std::endl;
