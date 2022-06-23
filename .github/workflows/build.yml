@@ -4,10 +4,9 @@ on:
   push:
     branches:
       - main
-      - develop
-      - feature/CI
+      - development
   pull_request:
-    branches: [ develop ]
+    branches: [ development ]
 env:
   GET_REPO: export REPO=${GITHUB_REPOSITORY#*/}
   GET_HASH: export HASH=${GITHUB_SHA}
@@ -25,7 +24,7 @@ jobs:
           eval $GET_REPO
           eval $GET_HASH
           echo "=== Build start ==="
-          echo rkdtnals423! | sudo -S echo ""         
+          echo qwer1234 | sudo -S echo ""         
           cd dockerfiles
           sudo docker build --force-rm --no-cache -t "${REPO}:${HASH}" --build-arg BRANCH=${{ github.head_ref }} . -f modules.dockerfile
           echo "=== Build finished ==="
@@ -34,7 +33,7 @@ jobs:
         if: failure()
         run: |
           echo "=== Clean up start ==="
-          echo rkdtnals423! | sudo -S echo ""
+          echo qwer1234 | sudo -S echo ""
           sudo docker rmi -f $(sudo docker images -f "dangling=true" -q)
           sudo docker images
           echo "=== Clean up finished ==="

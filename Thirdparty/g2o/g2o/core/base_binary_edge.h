@@ -30,98 +30,87 @@
 #include <iostream>
 #include <limits>
 
-#include "../../config.h"
 #include "base_edge.h"
 #include "robust_kernel.h"
+#include "../../config.h"
 
 namespace g2o {
 
-using namespace Eigen;
+  using namespace Eigen;
 
-template <int D, typename E, typename VertexXi, typename VertexXj>
-class BaseBinaryEdge : public BaseEdge<D, E> {
-public:
-  typedef VertexXi VertexXiType;
-  typedef VertexXj VertexXjType;
+  template <int D, typename E, typename VertexXi, typename VertexXj>
+  class BaseBinaryEdge : public BaseEdge<D, E>
+  {
+    public:
 
-  static const int Di = VertexXiType::Dimension;
-  static const int Dj = VertexXjType::Dimension;
+      typedef VertexXi VertexXiType;
+      typedef VertexXj VertexXjType;
 
-  static const int Dimension = BaseEdge<D, E>::Dimension;
-  typedef typename BaseEdge<D, E>::Measurement Measurement;
-  typedef typename Matrix<double, D, Di>::AlignedMapType JacobianXiOplusType;
-  typedef typename Matrix<double, D, Dj>::AlignedMapType JacobianXjOplusType;
-  typedef typename BaseEdge<D, E>::ErrorVector ErrorVector;
-  typedef typename BaseEdge<D, E>::InformationType InformationType;
+      static const int Di = VertexXiType::Dimension;
+      static const int Dj = VertexXjType::Dimension;
 
-  typedef Eigen::Map<Matrix<double, Di, Dj>,
-                     Matrix<double, Di, Dj>::Flags & AlignedBit ? Aligned
-                                                                : Unaligned>
-      HessianBlockType;
-  typedef Eigen::Map<Matrix<double, Dj, Di>,
-                     Matrix<double, Dj, Di>::Flags & AlignedBit ? Aligned
-                                                                : Unaligned>
-      HessianBlockTransposedType;
+      static const int Dimension = BaseEdge<D, E>::Dimension;
+      typedef typename BaseEdge<D,E>::Measurement Measurement;
+      typedef typename Matrix<double, D, Di>::AlignedMapType JacobianXiOplusType;
+      typedef typename Matrix<double, D, Dj>::AlignedMapType JacobianXjOplusType;
+      typedef typename BaseEdge<D,E>::ErrorVector ErrorVector;
+      typedef typename BaseEdge<D,E>::InformationType InformationType;
 
-  BaseBinaryEdge()
-      : BaseEdge<D, E>(), _hessianRowMajor(false),
-        _hessian(0, VertexXiType::Dimension,
-                 VertexXjType::Dimension), // HACK we map to the null pointer
-                                           // for initializing the Maps
-        _hessianTransposed(0, VertexXjType::Dimension, VertexXiType::Dimension),
-        _jacobianOplusXi(0, D, Di), _jacobianOplusXj(0, D, Dj) {
-    _vertices.resize(2);
-  }
+      typedef Eigen::Map<Matrix<double, Di, Dj>, Matrix<double, Di, Dj>::Flags & AlignedBit ? Aligned : Unaligned > HessianBlockType;
+      typedef Eigen::Map<Matrix<double, Dj, Di>, Matrix<double, Dj, Di>::Flags & AlignedBit ? Aligned : Unaligned > HessianBlockTransposedType;
 
-  virtual OptimizableGraph::Vertex *createFrom();
-  virtual OptimizableGraph::Vertex *createTo();
+      BaseBinaryEdge() : BaseEdge<D,E>(),
+      _hessianRowMajor(false),
+      _hessian(0, VertexXiType::Dimension, VertexXjType::Dimension), // HACK we map to the null pointer for initializing the Maps
+      _hessianTransposed(0, VertexXjType::Dimension, VertexXiType::Dimension),
+      _jacobianOplusXi(0, D, Di), _jacobianOplusXj(0, D, Dj)
+      {
+        _vertices.resize(2);
+      }
 
-  virtual void resize(size_t size);
+      virtual OptimizableGraph::Vertex* createFrom();
+      virtual OptimizableGraph::Vertex* createTo();
 
-  virtual bool allVerticesFixed() const;
+      virtual void resize(size_t size);
 
-  virtual void linearizeOplus(JacobianWorkspace &jacobianWorkspace);
+      virtual bool allVerticesFixed() const;
 
-  /**
-   * Linearizes the oplus operator in the vertex, and stores
-   * the result in temporary variables _jacobianOplusXi and _jacobianOplusXj
-   */
-  virtual void linearizeOplus();
+      virtual void linearizeOplus(JacobianWorkspace& jacobianWorkspace);
 
-  //! returns the result of the linearization in the manifold space for the node
-  //! xi
-  const JacobianXiOplusType &jacobianOplusXi() const {
-    return _jacobianOplusXi;
-  }
-  //! returns the result of the linearization in the manifold space for the node
-  //! xj
-  const JacobianXjOplusType &jacobianOplusXj() const {
-    return _jacobianOplusXj;
-  }
+      /**
+       * Linearizes the oplus operator in the vertex, and stores
+       * the result in temporary variables _jacobianOplusXi and _jacobianOplusXj
+       */
+      virtual void linearizeOplus();
 
-  virtual void constructQuadraticForm();
+      //! returns the result of the linearization in the manifold space for the node xi
+      const JacobianXiOplusType& jacobianOplusXi() const { return _jacobianOplusXi;}
+      //! returns the result of the linearization in the manifold space for the node xj
+      const JacobianXjOplusType& jacobianOplusXj() const { return _jacobianOplusXj;}
 
-  virtual void mapHessianMemory(double *d, int i, int j, bool rowMajor);
+      virtual void constructQuadraticForm() ;
 
-  using BaseEdge<D, E>::resize;
-  using BaseEdge<D, E>::computeError;
+      virtual void mapHessianMemory(double* d, int i, int j, bool rowMajor);
 
-protected:
-  using BaseEdge<D, E>::_measurement;
-  using BaseEdge<D, E>::_information;
-  using BaseEdge<D, E>::_error;
-  using BaseEdge<D, E>::_vertices;
-  using BaseEdge<D, E>::_dimension;
+      using BaseEdge<D,E>::resize;
+      using BaseEdge<D,E>::computeError;
 
-  bool _hessianRowMajor;
-  HessianBlockType _hessian;
-  HessianBlockTransposedType _hessianTransposed;
-  JacobianXiOplusType _jacobianOplusXi;
-  JacobianXjOplusType _jacobianOplusXj;
+    protected:
+      using BaseEdge<D,E>::_measurement;
+      using BaseEdge<D,E>::_information;
+      using BaseEdge<D,E>::_error;
+      using BaseEdge<D,E>::_vertices;
+      using BaseEdge<D,E>::_dimension;
 
-public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-};
+      bool _hessianRowMajor;
+      HessianBlockType _hessian;
+      HessianBlockTransposedType _hessianTransposed;
+      JacobianXiOplusType _jacobianOplusXi;
+      JacobianXjOplusType _jacobianOplusXj;
+
+    public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  };
 
 #include "base_binary_edge.hpp"
 

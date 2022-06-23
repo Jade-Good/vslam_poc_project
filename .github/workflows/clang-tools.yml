@@ -3,10 +3,8 @@ on:
   push:
     branches:
       - main
-      - develop
-      - feature/CI
   pull_request:
-    branches: [ develop ]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -19,6 +17,8 @@ jobs:
 
       - name: Run clang-format check script
         run: |
+          echo "=== give permission to py file ==="
+          chmod +x ./run-clang-format.py
           echo "=== clang-format check start ==="
           ./run-clang-format.py --style file -r modules
           echo "=== clang-format check finished ==="

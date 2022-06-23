@@ -1,14 +1,14 @@
-FROM 717lumos/slam:base
+FROM slam:base
 
-ARG BRANCH=feature/CI
+ARG BRANCH=development
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update -y && apt-get upgrade -y
 
 RUN useradd -m user && yes password | passwd user
 
-RUN echo "== Start Debug build == " && \
-cd slam/slam-build-prac && \
+RUN echo "== Start Debug build == " &&\
+cd /slam/programmers_slam_project_template && \
 git remote update && \
 git fetch --all && \
 git checkout ${BRANCH} && \
@@ -18,7 +18,7 @@ mkdir build_debug && cd build_debug && \
 cmake -DCMAKE_BUILD_TYPE=Debug -GNinja .. && ninja
 
 RUN echo "== Start Release build == " && \
-cd slam/slam-build-prac && \
+cd /slam/programmers_slam_project_template && \
 git remote update && \
 git fetch --all && \
 git checkout ${BRANCH} && \
