@@ -7,8 +7,9 @@ RUN sudo apt-get update -y && sudo apt-get upgrade -y
 
 RUN useradd -m user && yes password | passwd user
 
+RUN pwd
+
 RUN echo "== Start Debug build == " && \
-pwd && \
 cd home/vslam_poc_project && \
 git remote update && \
 git fetch --all && \
