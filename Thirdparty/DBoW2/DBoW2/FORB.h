@@ -11,19 +11,20 @@
 #define __D_T_F_ORB__
 
 #include <opencv2/core/core.hpp>
-#include <string>
 #include <vector>
+#include <string>
 
 #include "FClass.h"
 
-namespace DBoW2
-{
+namespace DBoW2 {
+
 /// Functions to manipulate ORB descriptors
-class FORB : protected FClass
+class FORB: protected FClass
 {
 public:
+
   /// Descriptor type
-  typedef cv::Mat TDescriptor;  // CV_8U
+  typedef cv::Mat TDescriptor; // CV_8U
   /// Pointer to a single descriptor
   typedef const TDescriptor *pDescriptor;
   /// Descriptor length (in bytes)
@@ -34,8 +35,7 @@ public:
    * @param descriptors
    * @param mean mean descriptor
    */
-  static void meanValue(
-    const std::vector<pDescriptor> &descriptors,
+  static void meanValue(const std::vector<pDescriptor> &descriptors,
     TDescriptor &mean);
 
   /**
@@ -65,15 +65,15 @@ public:
    * @param descriptors
    * @param mat (out) NxL 32F matrix
    */
-  static void toMat32F(
-    const std::vector<TDescriptor> &descriptors,
+  static void toMat32F(const std::vector<TDescriptor> &descriptors,
     cv::Mat &mat);
 
-  static void toMat8U(
-    const std::vector<TDescriptor> &descriptors,
+  static void toMat8U(const std::vector<TDescriptor> &descriptors,
     cv::Mat &mat);
+
 };
 
-}  // namespace DBoW2
+} // namespace DBoW2
 
 #endif
+

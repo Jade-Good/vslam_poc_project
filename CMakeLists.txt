@@ -1,3 +1,4 @@
+
 project(ORB_SLAM2)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_MODULE_PATH})
 
@@ -38,7 +39,7 @@ endif()
 
 find_package(Eigen3 REQUIRED HINTS ${CMAKE_SOURCE_DIR}/Thirdparty/Eigen3/install/share/eigen3/cmake NO_MODULE)
 find_package(Pangolin REQUIRED HINTS ${CMAKE_SOURCE_DIR}/Thirdparty/Pangolin/install/lib/cmake/Pangolin)
-find_package(easy_profiler HINTS ${CMAKE_SOURCE_DIR}/Thirdparty/easy_profiler/install/lib/cmake/easy_profiler)
+#find_package(easy_profiler HINTS ${CMAKE_SOURCE_DIR}/Thirdparty/easy_profiler/install/lib/cmake/easy_profiler)
 
 if (Pangolin_FOUND)
    message(STATUS "Pangolin FOUND! - ${Pangolin_DIR}")
@@ -51,7 +52,7 @@ include_directories(
         ${PROJECT_SOURCE_DIR}/include
         ${EIGEN3_INCLUDE_DIR}
         ${Pangolin_INCLUDE_DIRS}
-        ${CMAKE_SOURCE_DIR}/Thirdparty/easy_profiler/install/include
+#        ${CMAKE_SOURCE_DIR}/Thirdparty/easy_profiler/install/include
 )
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
@@ -80,7 +81,7 @@ add_library(${PROJECT_NAME} SHARED
         )
 
 target_link_libraries(${PROJECT_NAME}
-        ${EASY_PROFILER_LIBS}
+#        ${EASY_PROFILER_LIBS}
         ${OpenCV_LIBS}
         ${EIGEN3_LIBS}
         ${Pangolin_LIBS}
@@ -100,7 +101,7 @@ add_executable(mono_kitti
 target_link_libraries(mono_kitti ${PROJECT_NAME})
 
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.22)
 
 #------------------------------------------
 # CXX build flags
@@ -150,13 +151,13 @@ include(cmake_files/find_eigen3)
 include(cmake_files/find_image_exts) # ${IMAGE_LIBS} - png, jpeg, tiff, zlib
 include(cmake_files/find_yaml_cpp)
 include(cmake_files/find_opencv)
-include(cmake_files/find_ceres)
-include(cmake_files/find_gl) # ${GL_LIBS} - OpenGL, GLUT, GLEW
+#include(cmake_files/find_ceres)
+#include(cmake_files/find_gl) # ${GL_LIBS} - OpenGL, GLUT, GLEW
 include(cmake_files/find_pangolin)
 include(cmake_files/find_gtest)
-include(cmake_files/find_easy_profiler)
+#include(cmake_files/find_easy_profiler)
 include(cmake_files/find_doxygen)
-include(cmake_files/find_spdlog)
+#include(cmake_files/find_spdlog)
 
 
-add_subdirectory(src/test)
+#add_subdirectory(src/test)

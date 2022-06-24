@@ -28,6 +28,8 @@
 #include <opencv2/core/core.hpp>
 #include <string>
 #include <thread>
+#include <vector>
+#include <map>
 
 #include "FrameDrawer.h"
 #include "KeyFrameDatabase.h"

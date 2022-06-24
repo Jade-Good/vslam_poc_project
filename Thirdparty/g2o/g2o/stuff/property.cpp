@@ -26,90 +26,80 @@
 
 #include "property.h"
 
-#include <iostream>
 #include <vector>
+#include <iostream>
 
 #include "macros.h"
 
 #include "string_tools.h"
 using namespace std;
 
-namespace g2o
-{
-BaseProperty::BaseProperty(const std::string name_) : _name(name_) {}
+namespace g2o {
 
-BaseProperty::~BaseProperty() {}
-
-bool PropertyMap::addProperty(BaseProperty* p)
-{
-  std::pair<PropertyMapIterator, bool> result = insert(make_pair(p->name(), p));
-  return result.second;
-}
-
-bool PropertyMap::eraseProperty(const std::string& name)
-{
-  PropertyMapIterator it = find(name);
-  if (it == end())
-    return false;
-  delete it->second;
-  erase(it);
-  return true;
-}
-
-PropertyMap::~PropertyMap()
-{
-  for (PropertyMapIterator it = begin(); it != end(); it++)
-  {
-    if (it->second)
-      delete it->second;
+  BaseProperty::BaseProperty(const std::string name_) :_name(name_){
   }
-}
 
-bool PropertyMap::updatePropertyFromString(
-  const std::string& name,
-  const std::string& value)
-{
-  PropertyMapIterator it = find(name);
-  if (it == end())
-    return false;
-  it->second->fromString(value);
-  return true;
-}
+  BaseProperty::~BaseProperty(){}
 
-void PropertyMap::writeToCSV(std::ostream& os) const
-{
-  for (PropertyMapConstIterator it = begin(); it != end(); it++)
-  {
-    BaseProperty* p = it->second;
-    os << p->name() << ", ";
+  bool PropertyMap::addProperty(BaseProperty* p) {
+    std::pair<PropertyMapIterator,bool> result = insert(make_pair(p->name(), p));
+    return result.second;
   }
-  os << std::endl;
-  for (PropertyMapConstIterator it = begin(); it != end(); it++)
-  {
-    BaseProperty* p = it->second;
-    os << p->toString() << ", ";
-  }
-  os << std::endl;
-}
 
-bool PropertyMap::updateMapFromString(const std::string& values)
-{
-  bool status = true;
-  vector<string> valuesMap = strSplit(values, ",");
-  for (size_t i = 0; i < valuesMap.size(); ++i)
-  {
-    vector<string> m = strSplit(valuesMap[i], "=");
-    if (m.size() != 2)
-    {
-      cerr << __PRETTY_FUNCTION__ << ": unable to extract name=value pair from "
-           << valuesMap[i] << endl;
-      continue;
+  bool PropertyMap::eraseProperty(const std::string& name) {
+    PropertyMapIterator it=find(name);
+    if (it==end())
+      return false;
+    delete it->second;
+    erase(it);
+    return true;
+  }
+
+  PropertyMap::~PropertyMap() {
+    for (PropertyMapIterator it=begin(); it!=end(); it++){
+      if (it->second)
+        delete it->second;
     }
-    string name = trim(m[0]);
-    string value = trim(m[1]);
-    status = status && updatePropertyFromString(name, value);
   }
-  return status;
-}
 
-}  // namespace g2o
+  bool PropertyMap::updatePropertyFromString(const std::string& name, const std::string& value)
+  {
+    PropertyMapIterator it = find(name);
+    if (it == end())
+      return false;
+    it->second->fromString(value);
+    return true;
+  }
+
+  void PropertyMap::writeToCSV(std::ostream& os) const
+  {
+    for (PropertyMapConstIterator it=begin(); it!=end(); it++){
+      BaseProperty* p =it->second;
+      os << p->name() << ", ";
+    }
+    os << std::endl;
+    for (PropertyMapConstIterator it=begin(); it!=end(); it++){
+      BaseProperty* p =it->second;
+      os << p->toString() << ", ";
+    }
+    os << std::endl;
+  }
+
+  bool PropertyMap::updateMapFromString(const std::string& values)
+  {
+    bool status = true;
+    vector<string> valuesMap = strSplit(values, ",");
+    for (size_t i = 0; i < valuesMap.size(); ++i) {
+      vector<string> m = strSplit(valuesMap[i], "=");
+      if (m.size() != 2) {
+        cerr << __PRETTY_FUNCTION__ << ": unable to extract name=value pair from " << valuesMap[i] << endl;
+        continue;
+      }
+      string name = trim(m[0]);
+      string value = trim(m[1]);
+      status = status && updatePropertyFromString(name, value);
+    }
+    return status;
+  }
+
+} // end namespace

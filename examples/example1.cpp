@@ -119,17 +119,17 @@ void mat_mult(
 int main()
 {
   const int iteration = 10000;
-  EASY_PROFILER_ENABLE;
-  EASY_BLOCK("Outer block", profiler::colors::Black);
+//  EASY_PROFILER_ENABLE;
+//  EASY_BLOCK("Outer block", profiler::colors::Black);
   for (int i = 0; i < iteration; i++)
   {
     mat_mult(mat_a, mat_b, mat_c);
   }
-  EASY_END_BLOCK
+//  EASY_END_BLOCK
 
   std::cout << mat_a.transpose() << std::endl;
   std::cout << mat_b.transpose() << std::endl;
   std::cout << mat_c.transpose() << std::endl;
-  profiler::dumpBlocksToFile("../test_profile.prof");
+//  profiler::dumpBlocksToFile("../test_profile.prof");
   return 0;
 }

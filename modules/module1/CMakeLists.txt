@@ -40,7 +40,7 @@ target_include_directories(${PACKAGE_NAME} PRIVATE
         )
 target_link_libraries(${PACKAGE_NAME} PRIVATE
         ${EASY_PROFILER_LIBS}
-        ${SPDLOG_LIBS}
+#        ${SPDLOG_LIBS}
         stdc++fs
         )
 

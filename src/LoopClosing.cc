@@ -18,7 +18,7 @@
 * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
 */
 #define USING_EASY_PROFILER
-#include <Thirdparty/easy_profiler/easy_profiler_core/include/easy/profiler.h>
+//#include <Thirdparty/easy_profiler/easy_profiler_core/include/easy/profiler.h>
 
 #include "LoopClosing.h"
 
@@ -32,6 +32,7 @@
 
 #include<mutex>
 #include<thread>
+#include <unistd.h>
 
 
 namespace ORB_SLAM2
@@ -42,7 +43,7 @@ LoopClosing::LoopClosing(Map *pMap, KeyFrameDatabase *pDB, ORBVocabulary *pVoc, 
     mpKeyFrameDB(pDB), mpORBVocabulary(pVoc), mpMatchedKF(NULL), mLastLoopKFid(0), mbRunningGBA(false), mbFinishedGBA(true),
     mbStopGBA(false), mpThreadGBA(NULL), mbFixScale(bFixScale), mnFullBAIdx(0)
 {   
-    EASY_BLOCK("LoopClosing", profiler::colors::Green900);
+//    EASY_BLOCK("LoopClosing", profiler::colors::Green900);
     mnCovisibilityConsistencyTh = 3;
 }
 
@@ -92,7 +93,7 @@ void LoopClosing::Run()
 
 void LoopClosing::InsertKeyFrame(KeyFrame *pKF)
 {
-    EASY_BLOCK("InsertKeyFrames", profiler::colors::Green100);
+//    EASY_BLOCK("InsertKeyFrames", profiler::colors::Green100);
     unique_lock<mutex> lock(mMutexLoopQueue);
     if(pKF->mnId!=0)
         mlpLoopKeyFrameQueue.push_back(pKF);
@@ -100,14 +101,14 @@ void LoopClosing::InsertKeyFrame(KeyFrame *pKF)
 
 bool LoopClosing::CheckNewKeyFrames()
 {
-    EASY_BLOCK("CheckNewKeyFrames", profiler::colors::Green400);
+//    EASY_BLOCK("CheckNewKeyFrames", profiler::colors::Green400);
     unique_lock<mutex> lock(mMutexLoopQueue);
     return(!mlpLoopKeyFrameQueue.empty());
 }
 
 bool LoopClosing::DetectLoop()
 {   
-    EASY_BLOCK("DetectLoop", profiler::colors::Green200);
+//    EASY_BLOCK("DetectLoop", profiler::colors::Green200);
     {
         unique_lock<mutex> lock(mMutexLoopQueue);
         mpCurrentKF = mlpLoopKeyFrameQueue.front();

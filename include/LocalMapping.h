@@ -26,7 +26,7 @@
 #include "LoopClosing.h"
 #include "Map.h"
 #include "Tracking.h"
-
+#include <unistd.h>
 #include <mutex>
 
 

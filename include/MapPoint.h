@@ -27,6 +27,7 @@
 
 #include <mutex>
 #include <opencv2/core/core.hpp>
+#include <map>
 
 namespace ORB_SLAM2
 {

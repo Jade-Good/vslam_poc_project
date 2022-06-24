@@ -27,84 +27,74 @@
 #ifndef G2O_BASE_UNARY_EDGE_H
 #define G2O_BASE_UNARY_EDGE_H
 
-#include <cassert>
 #include <iostream>
+#include <cassert>
 #include <limits>
 
-#include "../../config.h"
 #include "base_edge.h"
 #include "robust_kernel.h"
+#include "../../config.h"
 
-namespace g2o
-{
-using namespace Eigen;
+namespace g2o {
 
-template<int D, typename E, typename VertexXi>
-class BaseUnaryEdge : public BaseEdge<D, E>
-{
-public:
-  static const int Dimension = BaseEdge<D, E>::Dimension;
-  typedef typename BaseEdge<D, E>::Measurement Measurement;
-  typedef VertexXi VertexXiType;
-  typedef typename Matrix<double, D, VertexXiType::Dimension>::AlignedMapType
-    JacobianXiOplusType;
-  typedef typename BaseEdge<D, E>::ErrorVector ErrorVector;
-  typedef typename BaseEdge<D, E>::InformationType InformationType;
+  using namespace Eigen;
 
-  BaseUnaryEdge()
-  : BaseEdge<D, E>(), _jacobianOplusXi(0, D, VertexXiType::Dimension)
+  template <int D, typename E, typename VertexXi>
+  class BaseUnaryEdge : public BaseEdge<D,E>
   {
-    _vertices.resize(1);
-  }
+    public:
+      static const int Dimension = BaseEdge<D, E>::Dimension;
+      typedef typename BaseEdge<D,E>::Measurement Measurement;
+      typedef VertexXi VertexXiType;
+      typedef typename Matrix<double, D, VertexXiType::Dimension>::AlignedMapType JacobianXiOplusType;
+      typedef typename BaseEdge<D,E>::ErrorVector ErrorVector;
+      typedef typename BaseEdge<D,E>::InformationType InformationType;
 
-  virtual void resize(size_t size);
+      BaseUnaryEdge() : BaseEdge<D,E>(),
+        _jacobianOplusXi(0, D, VertexXiType::Dimension)
+      {
+        _vertices.resize(1);
+      }
 
-  virtual bool allVerticesFixed() const;
+      virtual void resize(size_t size);
 
-  virtual void linearizeOplus(JacobianWorkspace& jacobianWorkspace);
+      virtual bool allVerticesFixed() const;
 
-  /**
-   * Linearizes the oplus operator in the vertex, and stores
-   * the result in temporary variables _jacobianOplusXi and _jacobianOplusXj
-   */
-  virtual void linearizeOplus();
+      virtual void linearizeOplus(JacobianWorkspace& jacobianWorkspace);
 
-  //! returns the result of the linearization in the manifold space for the node
-  //! xi
-  const JacobianXiOplusType& jacobianOplusXi() const
-  {
-    return _jacobianOplusXi;
-  }
+      /**
+       * Linearizes the oplus operator in the vertex, and stores
+       * the result in temporary variables _jacobianOplusXi and _jacobianOplusXj
+       */
+      virtual void linearizeOplus();
 
-  virtual void constructQuadraticForm();
+      //! returns the result of the linearization in the manifold space for the node xi
+      const JacobianXiOplusType& jacobianOplusXi() const { return _jacobianOplusXi;}
 
-  virtual void initialEstimate(
-    const OptimizableGraph::VertexSet& from,
-    OptimizableGraph::Vertex* to);
+      virtual void constructQuadraticForm();
 
-  virtual void mapHessianMemory(double*, int, int, bool)
-  {
-    assert(0 && "BaseUnaryEdge does not map memory of the Hessian");
-  }
+      virtual void initialEstimate(const OptimizableGraph::VertexSet& from, OptimizableGraph::Vertex* to);
 
-  using BaseEdge<D, E>::resize;
-  using BaseEdge<D, E>::computeError;
+      virtual void mapHessianMemory(double*, int, int, bool) {assert(0 && "BaseUnaryEdge does not map memory of the Hessian");}
 
-protected:
-  using BaseEdge<D, E>::_measurement;
-  using BaseEdge<D, E>::_information;
-  using BaseEdge<D, E>::_error;
-  using BaseEdge<D, E>::_vertices;
-  using BaseEdge<D, E>::_dimension;
+      using BaseEdge<D,E>::resize;
+      using BaseEdge<D,E>::computeError;
 
-  JacobianXiOplusType _jacobianOplusXi;
+    protected:
+      using BaseEdge<D,E>::_measurement;
+      using BaseEdge<D,E>::_information;
+      using BaseEdge<D,E>::_error;
+      using BaseEdge<D,E>::_vertices;
+      using BaseEdge<D,E>::_dimension;
 
-public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-};
+      JacobianXiOplusType _jacobianOplusXi;
+
+    public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  };
 
 #include "base_unary_edge.hpp"
 
-}  // end namespace g2o
+} // end namespace g2o
 
 #endif

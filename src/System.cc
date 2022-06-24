@@ -19,12 +19,17 @@
 */
 
 #include "gtest/gtest.h"
-#include <Thirdparty/spdlog/include/spdlog/spdlog.h>
+//#include <Thirdparty/spdlog/include/spdlog/spdlog.h>
 #include "System.h"
 #include "Converter.h"
 #include <thread>
 #include <pangolin/pangolin.h>
 #include <iomanip>
+#include <map>
+#include <unistd.h>
+
+using namespace std;
+
 int method = 0;
 namespace ORB_SLAM2
 {
@@ -94,16 +99,16 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     //Initialize the Loop Closing thread and launch + on/off
     bool bLoopClosing = static_cast<int>(fsSettings["System.LoopClosing"]) != 0;
     method = static_cast<int>(fsSettings["Optimizer.Algorithm"]);
-    if(method ==2)
-        spdlog::info("Powell's dogleg");
-    else if (method == 1)
-        spdlog::info("Gauss-Newton");
-    else
-        spdlog::info("Levenberg-Marquardt");
-    
+//    if(method ==2)
+//        spdlog::info("Powell's dogleg");
+//    else if (method == 1)
+//        spdlog::info("Gauss-Newton");
+//    else
+//        spdlog::info("Levenberg-Marquardt");
+//
     if(bLoopClosing)
     {
-        spdlog::info("Enabled Loop Closing");
+//        spdlog::info("Enabled Loop Closing");
 
         mpLoopCloser = new LoopClosing(mpMap, mpKeyFrameDatabase, mpVocabulary,
                                        mSensor != MONOCULAR); // mSensor!=MONOCULAR);
@@ -111,7 +116,7 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     }
     else
     {
-        spdlog::info("disabled Loop Closing");
+//        spdlog::info("disabled Loop Closing");
         mpLoopCloser = nullptr;
         mptLoopClosing = nullptr;
     }
@@ -329,7 +334,7 @@ void System::Shutdown()
         while(!mpViewer->isFinished())
             usleep(5000);
     }
-    spdlog::info("shut down start1");
+//    spdlog::info("shut down start1");
 
     // Wait until all thread have effectively stopped
     if(mpLoopCloser){

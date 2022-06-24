@@ -27,15 +27,15 @@
 #ifndef G2O_STRING_TOOLS_H
 #define G2O_STRING_TOOLS_H
 
-#include <cstdlib>
-#include <sstream>
 #include <string>
+#include <sstream>
+#include <cstdlib>
 #include <vector>
 
 #include "macros.h"
 
-namespace g2o
-{
+namespace g2o {
+
 /** @addtogroup utils **/
 // @{
 
@@ -46,39 +46,38 @@ namespace g2o
 /**
  * remove whitespaces from the start/end of a string
  */
-std::string trim(const std::string& s);
+ std::string trim(const std::string& s);
 
 /**
  * remove whitespaces from the left side of the string
  */
-std::string trimLeft(const std::string& s);
+ std::string trimLeft(const std::string& s);
 
 /**
  * remove whitespaced from the right side of the string
  */
-std::string trimRight(const std::string& s);
+ std::string trimRight(const std::string& s);
 
 /**
  * convert the string to lower case
  */
-std::string strToLower(const std::string& s);
+ std::string strToLower(const std::string& s);
 
 /**
  * convert a string to upper case
  */
-std::string strToUpper(const std::string& s);
+ std::string strToUpper(const std::string& s);
 
 /**
  * read integer values (seperated by spaces) from a string and store
  * them in the given OutputIterator.
  */
-template<typename OutputIterator>
+template <typename OutputIterator>
 OutputIterator readInts(const char* str, OutputIterator out)
 {
-  char* cl = (char*) str;
+  char* cl  = (char*)str;
   char* cle = cl;
-  while (1)
-  {
+  while (1) {
     int id = strtol(cl, &cle, 10);
     if (cl == cle)
       break;
@@ -92,13 +91,12 @@ OutputIterator readInts(const char* str, OutputIterator out)
  * read float values (seperated by spaces) from a string and store
  * them in the given OutputIterator.
  */
-template<typename OutputIterator>
+template <typename OutputIterator>
 OutputIterator readFloats(const char* str, OutputIterator out)
 {
-  char* cl = (char*) str;
+  char* cl  = (char*)str;
   char* cle = cl;
-  while (1)
-  {
+  while (1) {
     double val = strtod(cl, &cle);
     if (cl == cle)
       break;
@@ -112,12 +110,12 @@ OutputIterator readFloats(const char* str, OutputIterator out)
  * format a string and return a std::string.
  * Format is just like printf, see man 3 printf
  */
-std::string formatString(const char* fmt, ...) G2O_ATTRIBUTE_FORMAT12;
+ std::string formatString(const char* fmt, ...) G2O_ATTRIBUTE_FORMAT12;
 
 /**
  * replacement function for sprintf which fills a std::string instead of a char*
  */
-int strPrintf(std::string& str, const char* fmt, ...) G2O_ATTRIBUTE_FORMAT23;
+ int strPrintf(std::string& str, const char* fmt, ...) G2O_ATTRIBUTE_FORMAT23;
 
 /**
  * convert a string into an other type.
@@ -147,36 +145,32 @@ T stringToType(const std::string& s, bool failIfLeftoverChars = true)
 /**
  * return true, if str starts with substr
  */
-bool strStartsWith(const std::string& str, const std::string& substr);
+ bool strStartsWith(const std::string & str, const std::string& substr);
 
 /**
  * return true, if str ends with substr
  */
-bool strEndsWith(const std::string& str, const std::string& substr);
+ bool strEndsWith(const std::string & str, const std::string& substr);
 
 /**
- * expand the given filename like a posix shell, e.g., ~ $CARMEN_HOME and other
- * will get expanded. Also command substitution, e.g. `pwd` will give the
- * current directory.
+ * expand the given filename like a posix shell, e.g., ~ $CARMEN_HOME and other will get expanded.
+ * Also command substitution, e.g. `pwd` will give the current directory.
  */
-std::string strExpandFilename(const std::string& filename);
+ std::string strExpandFilename(const std::string& filename);
 
 /**
  * split a string into token based on the characters given in delim
  */
-std::vector<std::string> strSplit(
-  const std::string& s,
-  const std::string& delim);
+ std::vector<std::string> strSplit(const std::string& s, const std::string& delim);
 
 /**
  * read a line from is into currentLine.
- * @return the number of characters read into currentLine (excluding newline),
- * -1 on eof()
+ * @return the number of characters read into currentLine (excluding newline), -1 on eof()
  */
-int readLine(std::istream& is, std::stringstream& currentLine);
+ int readLine(std::istream& is, std::stringstream& currentLine);
 
 // @}
 
-}  // namespace g2o
+} // end namespace
 
 #endif

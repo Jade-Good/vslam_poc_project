@@ -18,8 +18,8 @@
 * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
 */
 #define USING_EASY_PROFILER
-#include <Thirdparty/easy_profiler/easy_profiler_core/include/easy/profiler.h>
-#include <Thirdparty/spdlog/include/spdlog/spdlog.h>
+//#include <Thirdparty/easy_profiler/easy_profiler_core/include/easy/profiler.h>
+//#include <Thirdparty/spdlog/include/spdlog/spdlog.h>
 #include "LocalMapping.h"
 #include "LoopClosing.h"
 #include "ORBmatcher.h"
@@ -129,7 +129,7 @@ bool LocalMapping::CheckNewKeyFrames()
 
 void LocalMapping::ProcessNewKeyFrame()
 {   
-    EASY_BLOCK("ProcessNewKeyFrame", profiler::colors::Black);
+//    EASY_BLOCK("ProcessNewKeyFrame", profiler::colors::Black);
 
     {
         unique_lock<mutex> lock(mMutexNewKFs);
@@ -173,7 +173,7 @@ void LocalMapping::ProcessNewKeyFrame()
 
 void LocalMapping::MapPointCulling()
 {   
-    EASY_BLOCK("MapPointCulling", profiler::colors::Black);
+//    EASY_BLOCK("MapPointCulling", profiler::colors::Black);
 
     // Check Recent Added MapPoints
     list<MapPoint*>::iterator lit = mlpRecentAddedMapPoints.begin();
@@ -210,8 +210,8 @@ void LocalMapping::MapPointCulling()
     }
 }
 
-void LocalMapping::CreateNewMapPoints()
-{   EASY_BLOCK("CreateNewMapPoints", profiler::colors::Black);
+void LocalMapping::CreateNewMapPoints() {
+//{   EASY_BLOCK("CreateNewMapPoints", profiler::colors::Black);
     // Retrieve neighbor keyframes in covisibility graph
     int nn = 10;
     if(mbMonocular)

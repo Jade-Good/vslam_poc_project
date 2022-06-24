@@ -60,7 +60,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <vector>
-#include "easy/profiler.h"
+//#include "easy/profiler.h"
 
 #include "ORBextractor.h"
 #define USING_EASY_PROFILER
@@ -1096,7 +1096,7 @@ static void computeDescriptors(
 void ORBextractor::operator()(InputArray _image, InputArray _mask,
                               vector<KeyPoint> &_keypoints,
                               OutputArray _descriptors) {
-  EASY_BLOCK("ORB extractor", profiler::colors::Blue);
+//  EASY_BLOCK("ORB extractor", profiler::colors::Blue);
   if (_image.empty())
     return;
 
@@ -1169,7 +1169,7 @@ void ORBextractor::operator()(InputArray _image, InputArray _mask,
   }
   }
   
-  EASY_END_BLOCK
+//  EASY_END_BLOCK
 
 }
 

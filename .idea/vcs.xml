@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Thirdparty/OpenCV/opencv" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Thirdparty/Pangolin/Pangolin" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Thirdparty/easy_profiler/easy_profiler" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Thirdparty/eigen3/eigen" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Thirdparty/googletest/googletest" vcs="Git" />
+  </component>
+</project>

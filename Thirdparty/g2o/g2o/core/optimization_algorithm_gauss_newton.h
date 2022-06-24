@@ -29,26 +29,26 @@
 
 #include "optimization_algorithm_with_hessian.h"
 
-namespace g2o
-{
-/**
- * \brief Implementation of the Gauss Newton Algorithm
- */
-class OptimizationAlgorithmGaussNewton : public OptimizationAlgorithmWithHessian
-{
-public:
+namespace g2o {
+
   /**
-   * construct the Gauss Newton algorithm, which use the given Solver for
-   * solving the linearized system.
+   * \brief Implementation of the Gauss Newton Algorithm
    */
-  explicit OptimizationAlgorithmGaussNewton(Solver* solver);
-  virtual ~OptimizationAlgorithmGaussNewton();
+  class  OptimizationAlgorithmGaussNewton : public OptimizationAlgorithmWithHessian
+  {
+    public:
+      /**
+       * construct the Gauss Newton algorithm, which use the given Solver for solving the
+       * linearized system.
+       */
+      explicit OptimizationAlgorithmGaussNewton(Solver* solver);
+      virtual ~OptimizationAlgorithmGaussNewton();
 
-  virtual SolverResult solve(int iteration, bool online = false);
+      virtual SolverResult solve(int iteration, bool online = false);
 
-  virtual void printVerbose(std::ostream& os) const;
-};
+      virtual void printVerbose(std::ostream& os) const;
+  };
 
-}  // namespace g2o
+} // end namespace
 
 #endif

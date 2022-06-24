@@ -103,7 +103,7 @@ class YAMLparser:
                 self.ceres = line["Ceres"]
                 self.gtest = line["GTest"]
                 self.easy_profiler = line["easy-profiler"]
-                self.spdlog = line["spdlog"]
+                # self.spdlog = line["spdlog"]
                 self.imgui = line["imgui"]
                 self.cereal = line["cereal"]
 

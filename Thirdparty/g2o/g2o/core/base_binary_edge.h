@@ -30,109 +30,90 @@
 #include <iostream>
 #include <limits>
 
-#include "../../config.h"
 #include "base_edge.h"
 #include "robust_kernel.h"
+#include "../../config.h"
 
-namespace g2o
-{
-using namespace Eigen;
+namespace g2o {
 
-template<int D, typename E, typename VertexXi, typename VertexXj>
-class BaseBinaryEdge : public BaseEdge<D, E>
-{
-public:
-  typedef VertexXi VertexXiType;
-  typedef VertexXj VertexXjType;
+  using namespace Eigen;
 
-  static const int Di = VertexXiType::Dimension;
-  static const int Dj = VertexXjType::Dimension;
-
-  static const int Dimension = BaseEdge<D, E>::Dimension;
-  typedef typename BaseEdge<D, E>::Measurement Measurement;
-  typedef typename Matrix<double, D, Di>::AlignedMapType JacobianXiOplusType;
-  typedef typename Matrix<double, D, Dj>::AlignedMapType JacobianXjOplusType;
-  typedef typename BaseEdge<D, E>::ErrorVector ErrorVector;
-  typedef typename BaseEdge<D, E>::InformationType InformationType;
-
-  typedef Eigen::Map<
-    Matrix<double, Di, Dj>,
-    Matrix<double, Di, Dj>::Flags & AlignedBit ? Aligned : Unaligned>
-    HessianBlockType;
-  typedef Eigen::Map<
-    Matrix<double, Dj, Di>,
-    Matrix<double, Dj, Di>::Flags & AlignedBit ? Aligned : Unaligned>
-    HessianBlockTransposedType;
-
-  BaseBinaryEdge()
-  : BaseEdge<D, E>(),
-    _hessianRowMajor(false),
-    _hessian(
-      0,
-      VertexXiType::Dimension,
-      VertexXjType::Dimension),  // HACK we map to the null pointer for
-                                 // initializing the Maps
-    _hessianTransposed(0, VertexXjType::Dimension, VertexXiType::Dimension),
-    _jacobianOplusXi(0, D, Di),
-    _jacobianOplusXj(0, D, Dj)
+  template <int D, typename E, typename VertexXi, typename VertexXj>
+  class BaseBinaryEdge : public BaseEdge<D, E>
   {
-    _vertices.resize(2);
-  }
+    public:
 
-  virtual OptimizableGraph::Vertex* createFrom();
-  virtual OptimizableGraph::Vertex* createTo();
+      typedef VertexXi VertexXiType;
+      typedef VertexXj VertexXjType;
 
-  virtual void resize(size_t size);
+      static const int Di = VertexXiType::Dimension;
+      static const int Dj = VertexXjType::Dimension;
 
-  virtual bool allVerticesFixed() const;
+      static const int Dimension = BaseEdge<D, E>::Dimension;
+      typedef typename BaseEdge<D,E>::Measurement Measurement;
+      typedef typename Matrix<double, D, Di>::AlignedMapType JacobianXiOplusType;
+      typedef typename Matrix<double, D, Dj>::AlignedMapType JacobianXjOplusType;
+      typedef typename BaseEdge<D,E>::ErrorVector ErrorVector;
+      typedef typename BaseEdge<D,E>::InformationType InformationType;
 
-  virtual void linearizeOplus(JacobianWorkspace& jacobianWorkspace);
+      typedef Eigen::Map<Matrix<double, Di, Dj>, Matrix<double, Di, Dj>::Flags & AlignedBit ? Aligned : Unaligned > HessianBlockType;
+      typedef Eigen::Map<Matrix<double, Dj, Di>, Matrix<double, Dj, Di>::Flags & AlignedBit ? Aligned : Unaligned > HessianBlockTransposedType;
 
-  /**
-   * Linearizes the oplus operator in the vertex, and stores
-   * the result in temporary variables _jacobianOplusXi and _jacobianOplusXj
-   */
-  virtual void linearizeOplus();
+      BaseBinaryEdge() : BaseEdge<D,E>(),
+      _hessianRowMajor(false),
+      _hessian(0, VertexXiType::Dimension, VertexXjType::Dimension), // HACK we map to the null pointer for initializing the Maps
+      _hessianTransposed(0, VertexXjType::Dimension, VertexXiType::Dimension),
+      _jacobianOplusXi(0, D, Di), _jacobianOplusXj(0, D, Dj)
+      {
+        _vertices.resize(2);
+      }
 
-  //! returns the result of the linearization in the manifold space for the node
-  //! xi
-  const JacobianXiOplusType& jacobianOplusXi() const
-  {
-    return _jacobianOplusXi;
-  }
-  //! returns the result of the linearization in the manifold space for the node
-  //! xj
-  const JacobianXjOplusType& jacobianOplusXj() const
-  {
-    return _jacobianOplusXj;
-  }
+      virtual OptimizableGraph::Vertex* createFrom();
+      virtual OptimizableGraph::Vertex* createTo();
 
-  virtual void constructQuadraticForm();
+      virtual void resize(size_t size);
 
-  virtual void mapHessianMemory(double* d, int i, int j, bool rowMajor);
+      virtual bool allVerticesFixed() const;
 
-  using BaseEdge<D, E>::resize;
-  using BaseEdge<D, E>::computeError;
+      virtual void linearizeOplus(JacobianWorkspace& jacobianWorkspace);
 
-protected:
-  using BaseEdge<D, E>::_measurement;
-  using BaseEdge<D, E>::_information;
-  using BaseEdge<D, E>::_error;
-  using BaseEdge<D, E>::_vertices;
-  using BaseEdge<D, E>::_dimension;
+      /**
+       * Linearizes the oplus operator in the vertex, and stores
+       * the result in temporary variables _jacobianOplusXi and _jacobianOplusXj
+       */
+      virtual void linearizeOplus();
 
-  bool _hessianRowMajor;
-  HessianBlockType _hessian;
-  HessianBlockTransposedType _hessianTransposed;
-  JacobianXiOplusType _jacobianOplusXi;
-  JacobianXjOplusType _jacobianOplusXj;
+      //! returns the result of the linearization in the manifold space for the node xi
+      const JacobianXiOplusType& jacobianOplusXi() const { return _jacobianOplusXi;}
+      //! returns the result of the linearization in the manifold space for the node xj
+      const JacobianXjOplusType& jacobianOplusXj() const { return _jacobianOplusXj;}
 
-public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-};
+      virtual void constructQuadraticForm() ;
+
+      virtual void mapHessianMemory(double* d, int i, int j, bool rowMajor);
+
+      using BaseEdge<D,E>::resize;
+      using BaseEdge<D,E>::computeError;
+
+    protected:
+      using BaseEdge<D,E>::_measurement;
+      using BaseEdge<D,E>::_information;
+      using BaseEdge<D,E>::_error;
+      using BaseEdge<D,E>::_vertices;
+      using BaseEdge<D,E>::_dimension;
+
+      bool _hessianRowMajor;
+      HessianBlockType _hessian;
+      HessianBlockTransposedType _hessianTransposed;
+      JacobianXiOplusType _jacobianOplusXi;
+      JacobianXjOplusType _jacobianOplusXj;
+
+    public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  };
 
 #include "base_binary_edge.hpp"
 
-}  // end namespace g2o
+} // end namespace g2o
 
 #endif
