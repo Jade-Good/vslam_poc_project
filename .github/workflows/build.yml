@@ -1,0 +1,43 @@
+name: CI
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+      - develop
+      - feature/CI
+  pull_request:
+    branches:
+      - master
+      - develop
+      - feature/CI
+env:
+  GET_REPO: export REPO=${GITHUB_REPOSITORY#*/}
+  GET_HASH: export HASH=${GITHUB_SHA}
+
+jobs:
+  CI:
+    name: CI
+    runs-on: self-hosted
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+
+      - name: Build - Build SLAM with pre-built 3rdParty libs
+        run: |
+          eval $GET_REPO
+          eval $GET_HASH
+          echo "=== Build start ==="
+          echo rkdtnals423! | sudo -S echo ""         
+          cd dockerfiles
+          sudo docker build --force-rm --no-cache -t "${REPO}:${HASH}" --build-arg BRANCH=${{ github.head_ref }} . -f modules.dockerfile
+          echo "=== Build finished ==="
+
+      - name: If Fail - Clean up Docker image if build fails
+        if: failure()
+        run: |
+          echo "=== Clean up start ==="
+          echo rkdtnals423 | sudo -S echo ""
+          sudo docker rmi -f $(sudo docker images -f "dangling=true" -q)
+          sudo docker images
+          echo "=== Clean up finished ==="

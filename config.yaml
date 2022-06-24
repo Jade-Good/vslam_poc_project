@@ -1,0 +1,32 @@
+#-----------------------------------------------
+# initialization
+#-----------------------------------------------
+
+## Parameters
+
+
+
+
+
+
+
+
+#-----------------------------------------------
+# ORB
+#-----------------------------------------------
+
+##### Parameters
+
+ORBextractor.nFeatures: 1200
+ORBextractor.scaleFactor: 1.2
+ORBextractor.nLevels: 8
+
+# ORB Extractor: Fast threshold
+# Image is divided in a grid. At each cell FAST are extracted imposing a minimum response.
+# Firstly we impose iniThFAST. If no corners are detected we impose a lower value minThFAST
+# You can lower these values if your images have low contrast
+ORBextractor.initialFASTThres: 20
+ORBextractor.minimumFASTThres: 7
+
+
+

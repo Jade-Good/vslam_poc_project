@@ -1,0 +1,30 @@
+name: clang-format
+on:
+  push:
+    branches:
+      - master
+      - develop
+      - feature/CI
+  pull_request:
+    branches:
+      - master
+      - develop
+      - feature/CI
+  workflow_dispatch:
+
+jobs:
+  clang-format:
+    name: clang-format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+
+      - name: Run clang-format check script
+        run: |
+          echo "=== give permission to py file ==="
+          pwd
+          chmod +x ./run-clang-format.py
+          echo "=== clang-format check start ==="
+          ./run-clang-format.py -r ../vslam_poc_project
+          echo "=== clang-format check finished ==="

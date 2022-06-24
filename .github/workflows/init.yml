@@ -1,0 +1,54 @@
+name: Build Base docker image 
+on:
+  schedule:
+    # ┌───────────── min (0 - 59)
+    # │ ┌────────────── hour (0 - 23)
+    # │ │ ┌─────────────── day of month (1 - 31)
+    # │ │ │ ┌──────────────── month (1 - 12)
+    # │ │ │ │ ┌───────────────── day of week (0 - 6) (0 to 6 are Sunday to Saturday, or use names; 7 is Sunday, the same as 0)
+    # │ │ │ │ │
+    # │ │ │ │ │
+    # * * * * *  command to execute / Datetime is UTC-0 / KST 02:00 AM
+    - cron: "0 17 * * *"
+  workflow_dispatch:
+
+jobs:
+  Dependency_Build:
+    name: Base docker image
+    runs-on: self-hosted
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+
+      - name: pre-build 3rdParty libs 
+        run: |
+          echo "=== Build start ==="
+          echo rkdtnals423 | sudo -S echo ""         
+          cd dockerfiles
+          echo "=== Log Docker image status ==="
+          sudo docker images 
+          echo "=== Temporary Docker image build start ==="              
+          sudo docker build --force-rm --no-cache -t SLAM_DUNK:base_temp . -f base.dockerfile
+          echo "=== Temporary Docker image build finished ==="
+          echo "=== Log Docker image status ==="
+          echo rkdtnals423 | sudo -S echo ""
+          sudo docker images
+          echo "=== Replace old Docker image with temporary image start ==="
+          sudo docker rmi SLAM_DUNK:base
+          sudo docker image tag SLAM_DUNK:base_temp SLAM_DUNK:base
+          sudo docker rmi SLAM_DUNK:base_temp
+          sudo docker images 
+          echo "=== Job finished ===" 
+
+      - name: Clean up Docker image if build fails
+        run: |
+          echo "=== Clean up start ==="  
+          echo rkdtnals423 | sudo -S echo "" 
+          echo "=== Log Docker image status ==="
+          sudo docker images 
+          sudo docker rmi -f $(sudo docker images -f "dangling=true" -q)
+          echo "=== Delete dangling Docker images ===" 
+          echo "=== Log Docker image status ==="
+          sudo docker images
+          echo "=== Clean up finished ==="
+        if: failure() 
