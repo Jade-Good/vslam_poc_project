@@ -60,10 +60,10 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <vector>
+#include "easy/profiler.h"
 
 #include "ORBextractor.h"
-
-
+#define USING_EASY_PROFILER
 using namespace cv;
 using namespace std;
 
@@ -417,18 +417,10 @@ static int bit_pattern_31_[256 * 4] = {
   -1,  -6,  0,   -11 /*mean (0.127148), correlation (0.547401)*/
 };
 
-ORBextractor::ORBextractor(
-  int _nfeatures,
-  float _scaleFactor,
-  int _nlevels,
-  int _iniThFAST,
-  int _minThFAST)
-: nfeatures(_nfeatures),
-  scaleFactor(_scaleFactor),
-  nlevels(_nlevels),
-  iniThFAST(_iniThFAST),
-  minThFAST(_minThFAST)
-{
+ORBextractor::ORBextractor(int _nfeatures, float _scaleFactor, int _nlevels,
+                           int _iniThFAST, int _minThFAST, int _minThORB, string _destType)
+    : nfeatures(_nfeatures), scaleFactor(_scaleFactor), nlevels(_nlevels),
+      iniThFAST(_iniThFAST), minThFAST(_minThFAST), destType(_destType) {
   mvScaleFactor.resize(nlevels);
   mvLevelSigma2.resize(nlevels);
   mvScaleFactor[0] = 1.0f;
@@ -1101,34 +1093,43 @@ static void computeDescriptors(
       keypoints[i], image, &pattern[0], descriptors.ptr((int) i));
 }
 
-void ORBextractor::operator()(
-  InputArray _image,
-  InputArray _mask,
-  vector<KeyPoint>& _keypoints,
-  OutputArray _descriptors)
-{
+void ORBextractor::operator()(InputArray _image, InputArray _mask,
+                              vector<KeyPoint> &_keypoints,
+                              OutputArray _descriptors) {
+  EASY_BLOCK("ORB extractor", profiler::colors::Blue);
   if (_image.empty())
     return;
 
   Mat image = _image.getMat();
   assert(image.type() == CV_8UC1);
-
-  // Pre-compute the scale pyramid
+  if(destType == "ORB") {
+    Ptr<ORB> orb = ORB::create(nfeatures, 1.2f, 8,12);
+    orb ->detectAndCompute(image,noArray(),_keypoints,_descriptors);
+  }
+//  else if(destType == "SIFT") {
+//    cv::Ptr<Feature2D> sift  = cv::xfeatures2d::SiftFeatureDetector::create();
+//    sift ->detectAndCompute(image,noArray(),_keypoints, noArray());
+//  }
+  else if(destType == "AKAZE") {
+    cv::Ptr<cv::Feature2D> akaze = cv::AKAZE::create();
+    akaze ->detectAndCompute(image,noArray(),_keypoints,_descriptors);
+  }
+  else if(destType == "FAST") {
+      // Pre-compute the scale pyramid
   ComputePyramid(image);
 
   vector<vector<KeyPoint>> allKeypoints;
   ComputeKeyPointsOctTree(allKeypoints);
-  // ComputeKeyPointsOld(allKeypoints);
+    ComputeKeyPointsOld(allKeypoints);
 
   Mat descriptors;
 
   int nkeypoints = 0;
   for (int level = 0; level < nlevels; ++level)
-    nkeypoints += (int) allKeypoints[level].size();
+    nkeypoints += (int)allKeypoints[level].size();
   if (nkeypoints == 0)
     _descriptors.release();
-  else
-  {
+  else {
     _descriptors.create(nkeypoints, 32, CV_8U);
     descriptors = _descriptors.getMat();
   }
@@ -1137,10 +1138,9 @@ void ORBextractor::operator()(
   _keypoints.reserve(nkeypoints);
 
   int offset = 0;
-  for (int level = 0; level < nlevels; ++level)
-  {
-    vector<KeyPoint>& keypoints = allKeypoints[level];
-    int nkeypointsLevel = (int) keypoints.size();
+  for (int level = 0; level < nlevels; ++level) {
+    vector<KeyPoint> &keypoints = allKeypoints[level];
+    int nkeypointsLevel = (int)keypoints.size();
 
     if (nkeypointsLevel == 0)
       continue;
@@ -1156,19 +1156,21 @@ void ORBextractor::operator()(
     offset += nkeypointsLevel;
 
     // Scale keypoint coordinates
-    if (level != 0)
-    {
+    if (level != 0) {
       float scale =
-        mvScaleFactor[level];  // getScale(level, firstLevel, scaleFactor);
+          mvScaleFactor[level]; // getScale(level, firstLevel, scaleFactor);
       for (vector<KeyPoint>::iterator keypoint = keypoints.begin(),
                                       keypointEnd = keypoints.end();
-           keypoint != keypointEnd;
-           ++keypoint)
+            keypoint != keypointEnd; ++keypoint)
         keypoint->pt *= scale;
     }
     // And add the keypoints to the output
     _keypoints.insert(_keypoints.end(), keypoints.begin(), keypoints.end());
   }
+  }
+  
+  EASY_END_BLOCK
+
 }
 
 void ORBextractor::ComputePyramid(cv::Mat image)

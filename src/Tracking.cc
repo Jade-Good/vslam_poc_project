@@ -132,24 +132,27 @@ Tracking::Tracking(
   int nLevels = fSettings["ORBextractor.nLevels"];
   int fIniThFAST = fSettings["ORBextractor.iniThFAST"];
   int fMinThFAST = fSettings["ORBextractor.minThFAST"];
+  int fMinThORB = fSettings["ORBextractor.minThORB"];
+  string fDestType = fSettings["ORBextractor.destType"];
 
-  mpORBextractorLeft =
-    new ORBextractor(nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
+  mpORBextractorLeft = new ORBextractor(nFeatures, fScaleFactor, nLevels,
+                                        fIniThFAST, fMinThFAST, fMinThORB, fDestType);
 
   if (sensor == System::STEREO)
-    mpORBextractorRight = new ORBextractor(
-      nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
+    mpORBextractorRight = new ORBextractor(nFeatures, fScaleFactor, nLevels,
+                                           fIniThFAST, fMinThFAST, fMinThORB, fDestType);
 
   if (sensor == System::MONOCULAR)
-    mpIniORBextractor = new ORBextractor(
-      2 * nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
+    mpIniORBextractor = new ORBextractor(2 * nFeatures, fScaleFactor, nLevels,
+                                         fIniThFAST, fMinThFAST, fMinThORB, fDestType);
 
   cout << endl << "ORB Extractor Parameters: " << endl;
   cout << "- Number of Features: " << nFeatures << endl;
-  cout << "- Scale Levels: " << nLevels << endl;
-  cout << "- Scale Factor: " << fScaleFactor << endl;
-  cout << "- Initial Fast Threshold: " << fIniThFAST << endl;
-  cout << "- Minimum Fast Threshold: " << fMinThFAST << endl;
+//  cout << "- Scale Levels: " << nLevels << endl;
+//  cout << "- Scale Factor: " << fScaleFactor << endl;
+//  cout << "- Initial Fast Threshold: " << fIniThFAST << endl;
+  cout << "Type of feature descriptor: " <<  fDestType << endl;
+  cout << "- Minimum ORB Threshold: " << fMinThFAST << endl;
 
   if (sensor == System::STEREO || sensor == System::RGBD)
   {

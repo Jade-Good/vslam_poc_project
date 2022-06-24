@@ -22,10 +22,13 @@
 #include<algorithm>
 #include<fstream>
 #include<chrono>
-#include<unistd.h>
+
 #include<opencv2/core/core.hpp>
 
 #include<System.h>
+
+#define _WEBCAM_BUILD_
+
 
 using namespace std;
 
@@ -34,6 +37,92 @@ void LoadImages(const string &strFile, vector<string> &vstrImageFilenames,
 
 int main(int argc, char **argv)
 {
+    if(argc != 4)
+    {
+        cerr << endl << "Usage: ./mono_tum path_to_vocabulary path_to_settings path_to_sequence" << endl;
+        return 1;
+#ifdef _WEBCAM_BUILD_
+    if(argc != 3)
+    {
+        cerr << endl << "argc:" << argc << "!= 3"<< endl;
+    }
+
+    cv::VideoCapture cap(0);
+
+    if (!cap.isOpened()) {
+        cerr << endl << "Could not open camera feed." << endl;
+        return -1;
+    }
+    ORB_SLAM2::System SLAM(argv[1], argv[2], ORB_SLAM2::System::MONOCULAR, true);
+    cout << endl << "-------" << endl;
+    cout << "Start processing sequence ..." << endl;
+
+    // Retrieve paths to images
+    vector<string> vstrImageFilenames;
+    vector<double> vTimestamps;
+    string strFile = string(argv[3])+"/rgb.txt";
+    LoadImages(strFile, vstrImageFilenames, vTimestamps);
+
+    int nImages = vstrImageFilenames.size();
+
+    // Create SLAM system. It initializes all system threads and gets ready to process frames.
+    ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::MONOCULAR,true);
+
+    // Vector for tracking time statistics
+    vector<float> vTimesTrack;
+    vTimesTrack.resize(nImages);
+
+    cout << endl << "-------" << endl;
+    cout << "Start processing sequence ..." << endl;
+    cout << "Images in the sequence: " << nImages << endl << endl;
+
+    // Main loop
+    cv::Mat im;
+    for(int ni=0; ni<nImages; ni++)
+    {
+        // Read image from file
+        im = cv::imread(string(argv[3])+"/"+vstrImageFilenames[ni],CV_LOAD_IMAGE_UNCHANGED);
+        double tframe = vTimestamps[ni];
+
+        if(im.empty())
+        {
+            cerr << endl << "Failed to load image at: "
+                 << string(argv[3]) << "/" << vstrImageFilenames[ni] << endl;
+            return 1;
+        }
+
+#ifdef COMPILEDWITHC11
+    std::chrono::steady_clock::time_point initT = std::chrono::steady_clock::now();
+#else
+    std::chrono::monotonic_clock::time_point initT = std::chrono::monotonic_clock::now();
+#endif
+
+    // Main loop
+    while(true)//cv::waitKey(0) != 27)
+    {
+        //Create a new Mat
+        cv::Mat frame;
+
+        //Send the captured frame to the new Mat
+        cap >> frame;
+
+        if(frame.empty())
+            break;
+#ifdef COMPILEDWITHC11
+        std::chrono::steady_clock::time_point nowT = std::chrono::steady_clock::now();
+#else
+        std::chrono::monotonic_clock::time_point nowT = std::chrono::monotonic_clock::now();
+#endif
+        // Pass the image to the SLAM system
+        SLAM.TrackMonocular(frame, std::chrono::duration_cast<std::chrono::duration<double> >(nowT-initT).count());
+    }
+    // Stop all threads
+    SLAM.Shutdown();
+
+    //slam->SaveSeperateKeyFrameTrajectoryTUM("KeyFrameTrajectory-1.txt", "KeyFrameTrajectory-2.txt", "KeyFrameTrajectory-3.txt");
+    SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");
+
+#else
     if(argc != 4)
     {
         cerr << endl << "Usage: ./mono_tum path_to_vocabulary path_to_settings path_to_sequence" << endl;
@@ -58,6 +147,11 @@ int main(int argc, char **argv)
     cout << endl << "-------" << endl;
     cout << "Start processing sequence ..." << endl;
     cout << "Images in the sequence: " << nImages << endl << endl;
+
+    ORB_SLAM2::System SLAM(argv[1], argv[2], ORB_SLAM2::System::MONOCULAR, true);
+
+    cout << endl << "-------" << endl;
+    cout << "Start processing sequence ..." << endl;
 
     // Main loop
     cv::Mat im;
@@ -120,7 +214,7 @@ int main(int argc, char **argv)
 
     // Save camera trajectory
     SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");
-
+#endif
     return 0;
 }
 
