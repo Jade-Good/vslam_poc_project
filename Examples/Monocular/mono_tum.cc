@@ -18,7 +18,6 @@
  * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include <algorithm>
 #include <chrono>
 #include <fstream>
@@ -28,17 +27,15 @@
 
 #include <System.h>
 
+#include <unistd.h>
+
 using namespace std;
 
-void LoadImages(
-  const string &strFile,
-  vector<string> &vstrImageFilenames,
-  vector<double> &vTimestamps);
+void LoadImages(const string &strFile, vector<string> &vstrImageFilenames,
+                vector<double> &vTimestamps);
 
-int main(int argc, char **argv)
-{
-  if (argc != 4)
-  {
+int main(int argc, char **argv) {
+  if (argc != 4) {
     cerr << endl
          << "Usage: ./mono_tum path_to_vocabulary path_to_settings "
             "path_to_sequence"
@@ -68,15 +65,13 @@ int main(int argc, char **argv)
 
   // Main loop
   cv::Mat im;
-  for (int ni = 0; ni < nImages; ni++)
-  {
+  for (int ni = 0; ni < nImages; ni++) {
     // Read image from file
-    im = cv::imread(
-      string(argv[3]) + "/" + vstrImageFilenames[ni], CV_LOAD_IMAGE_UNCHANGED);
+    im = cv::imread(string(argv[3]) + "/" + vstrImageFilenames[ni],
+                    CV_LOAD_IMAGE_UNCHANGED);
     double tframe = vTimestamps[ni];
 
-    if (im.empty())
-    {
+    if (im.empty()) {
       cerr << endl
            << "Failed to load image at: " << string(argv[3]) << "/"
            << vstrImageFilenames[ni] << endl;
@@ -87,7 +82,7 @@ int main(int argc, char **argv)
     std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
 #else
     std::chrono::monotonic_clock::time_point t1 =
-      std::chrono::monotonic_clock::now();
+        std::chrono::monotonic_clock::now();
 #endif
 
     // Pass the image to the SLAM system
@@ -97,12 +92,12 @@ int main(int argc, char **argv)
     std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
 #else
     std::chrono::monotonic_clock::time_point t2 =
-      std::chrono::monotonic_clock::now();
+        std::chrono::monotonic_clock::now();
 #endif
 
     double ttrack =
-      std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1)
-        .count();
+        std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1)
+            .count();
 
     vTimesTrack[ni] = ttrack;
 
@@ -123,8 +118,7 @@ int main(int argc, char **argv)
   // Tracking time statistics
   sort(vTimesTrack.begin(), vTimesTrack.end());
   float totaltime = 0;
-  for (int ni = 0; ni < nImages; ni++)
-  {
+  for (int ni = 0; ni < nImages; ni++) {
     totaltime += vTimesTrack[ni];
   }
   cout << "-------" << endl << endl;
@@ -137,11 +131,8 @@ int main(int argc, char **argv)
   return 0;
 }
 
-void LoadImages(
-  const string &strFile,
-  vector<string> &vstrImageFilenames,
-  vector<double> &vTimestamps)
-{
+void LoadImages(const string &strFile, vector<string> &vstrImageFilenames,
+                vector<double> &vTimestamps) {
   ifstream f;
   f.open(strFile.c_str());
 
@@ -151,12 +142,10 @@ void LoadImages(
   getline(f, s0);
   getline(f, s0);
 
-  while (!f.eof())
-  {
+  while (!f.eof()) {
     string s;
     getline(f, s);
-    if (!s.empty())
-    {
+    if (!s.empty()) {
       stringstream ss;
       ss << s;
       double t;
