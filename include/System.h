@@ -38,6 +38,7 @@
 #include "ORBVocabulary.h"
 #include "Tracking.h"
 #include "Viewer.h"
+#include <unistd.h>
 
 namespace ORB_SLAM2
 {

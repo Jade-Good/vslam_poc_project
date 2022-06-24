@@ -49,44 +49,39 @@ class LocalMapping;
 class LoopClosing;
 class System;
 
+
+enum eTrackingState{
+    SYSTEM_NOT_READY=-1,
+    NO_IMAGES_YET=0,
+    NOT_INITIALIZED=1,
+    OK=2,
+    LOST=3
+};
+
 class Tracking
 {
+
 public:
-  Tracking(
-    System* pSys,
-    ORBVocabulary* pVoc,
-    FrameDrawer* pFrameDrawer,
-    MapDrawer* pMapDrawer,
-    Map* pMap,
-    KeyFrameDatabase* pKFDB,
-    const string& strSettingPath,
-    const int sensor);
 
-  // Preprocess the input and call Track(). Extract features and performs stereo
-  // matching.
-  cv::Mat GrabImageStereo(
-    const cv::Mat& imRectLeft,
-    const cv::Mat& imRectRight,
-    const double& timestamp);
-  cv::Mat GrabImageRGBD(
-    const cv::Mat& imRGB,
-    const cv::Mat& imD,
-    const double& timestamp);
-  cv::Mat GrabImageMonocular(const cv::Mat& im, const double& timestamp);
+    Tracking(System* pSys, ORBVocabulary* pVoc, FrameDrawer* pFrameDrawer, MapDrawer* pMapDrawer, Map* pMap,
+             KeyFrameDatabase* pKFDB, const string &strSettingPath, const int sensor);
 
-  void SetLocalMapper(LocalMapping* pLocalMapper);
-  void SetLoopClosing(LoopClosing* pLoopClosing);
-  void SetViewer(Viewer* pViewer);
+    // Preprocess the input and call Track(). Extract features and performs stereo matching.
+    cv::Mat GrabImageStereo(const cv::Mat &imRectLeft,const cv::Mat &imRectRight, const double &timestamp);
+    cv::Mat GrabImageRGBD(const cv::Mat &imRGB,const cv::Mat &imD, const double &timestamp);
+    cv::Mat GrabImageMonocular(const cv::Mat &im, const double &timestamp);
 
-  // Load new settings
-  // The focal lenght should be similar or scale prediction will fail when
-  // projecting points
-  // TODO: Modify MapPoint::PredictScale to take into account focal lenght
-  void ChangeCalibration(const string& strSettingPath);
+    void SetLocalMapper(LocalMapping* pLocalMapper);
+    void SetLoopClosing(LoopClosing* pLoopClosing);
+    void SetViewer(Viewer* pViewer);
 
-  // Use this function if you have deactivated local mapping and you only want
-  // to localize the camera.
-  void InformOnlyTracking(const bool& flag);
+    // Load new settings
+    // The focal lenght should be similar or scale prediction will fail when projecting points
+    // TODO: Modify MapPoint::PredictScale to take into account focal lenght
+    void ChangeCalibration(const string &strSettingPath);
+
+    // Use this function if you have deactivated local mapping and you only want to localize the camera.
+    void InformOnlyTracking(const bool &flag);
 
 
 public:

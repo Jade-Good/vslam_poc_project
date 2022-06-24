@@ -32,10 +32,16 @@
 
 #include "Optimizer.h"
 #include "PnPsolver.h"
+#include<iostream>
+#include<unistd.h>
+#include<mutex>
 
-#include <iostream>
+// 0 == Original RANSAC
 
-#include <mutex>
+int RANSACmethod = 0;
+int checkEarlyStopN = 5;
+int checkEarlyStopThres = 500;
+int sortPointN = 100;
 
 
 using namespace std;
@@ -168,6 +174,12 @@ Tracking::Tracking(
     else
       mDepthMapFactor = 1.0f / mDepthMapFactor;
   }
+          // custom method set
+        RANSACmethod = fSettings["RANSAC.method"];
+        checkEarlyStopN = fSettings["RANSAC.checkEarlyStopN"];
+        checkEarlyStopThres = fSettings["RANSAC.checkearlyStopThreshold"];
+        sortPointN = fSettings["RANSAC.usingSortPointN"];
+
 }
 
 void Tracking::SetLocalMapper(LocalMapping* pLocalMapper)
@@ -184,6 +196,8 @@ void Tracking::SetViewer(Viewer* pViewer)
 {
   mpViewer = pViewer;
 }
+   
+
 
 
 cv::Mat Tracking::GrabImageStereo(
