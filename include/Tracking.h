@@ -50,10 +50,20 @@ class LocalMapping;
 class LoopClosing;
 class System;
 
+
+enum eTrackingState{
+    SYSTEM_NOT_READY=-1,
+    NO_IMAGES_YET=0,
+    NOT_INITIALIZED=1,
+    OK=2,
+    LOST=3
+};
+
 class Tracking
-{  
+{
 
 public:
+
     Tracking(System* pSys, ORBVocabulary* pVoc, FrameDrawer* pFrameDrawer, MapDrawer* pMapDrawer, Map* pMap,
              KeyFrameDatabase* pKFDB, const string &strSettingPath, const int sensor);
 
